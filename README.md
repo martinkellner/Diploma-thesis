@@ -1,4 +1,5 @@
-**Author:** Martin Kellner <br>
+**Author:** Martin Kellner<br>
+**E-mail:** *martinkellner1(at)gmail.com* or *kellner7(at)uniba.sk* <br>
 **Supervisor:** prof. Ing. Igor Farkaš, Dr.
 
 ## Annotation
