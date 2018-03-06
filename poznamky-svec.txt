@@ -1,0 +1,56 @@
+Poznamky ku diplomovej praci M. Sveca.
+
+slova:
+	senzoricky --- zmyslovy, suvisiaci s vnimaním vonakajsieho sveta
+	stimul --- podnet
+	retinotopic --- relating to or preserving the spatial relations of the sensory receptors of the retina
+	thalamus --- cast mozgu
+	sensorimotor transformation --- proces konvertovania senzorickych vnemov na motoricke plany
+	propriocepcia --- prijímanie podnetov o polohe tela 
+	limbs --- koncatiny
+	PPC --- posterior parietal cortex (zadna parietalna kora)
+
+--- uvod 
+	--- transformaciu pozicie objektu na sietnici do priestovej reprezentacie, kt. umoznuje objekt chytit (teda vieme pomocou toho ako objekt uchopit)
+
+--- referecne ramce
+	--- Pojem refecny ramec (reference frame) vyjadruje vztah medzi pozorovanym objektom a bodom odkial je dany objekt pozorovany 
+		--- egocentric frame  : pozicia objektu v zavislosti od pozorovatela  (The ball is near to me)
+		--- allocentric frame : pozicia objektu v zavislosti od ineho objektu (The ball is on the table)
+		Referencne ramce su v neurovede pre lepsie porozumenie reprezentacie priestoru v mozgu.
+		
+		Bunky vo vizualnom systeme odpovedaju len ku podnetom umiestnenim len v ciastkovej lokacii zvanej
+		"response field of neuron" alebo "receptive field", kde odpoved je povazovana za striktne senzoricku
+		
+		Pozorovanie referencnych ramcov v neurovoch, ktore koduju priestorovu informaciu je casto zalozene na
+		zmenach v odpovediach neuronov v case ked sa pohybuje len jednou castou tela. Ak sa odpoved meni pocas pohybu, tak je to interpretovane ako
+		kodovanie priestoru pomocou referencnych ramcov ukontvenych na danu cast tela.
+		
+	--- Sensorimotor transformations
+		
+		Pri pozerani na objekt, tak svetlo ktore dopada na nasu retinu vyvovala neuronove signaly, ktore su prenasane do hlavnej vizualnej kory. Neurony v tejto oblasti pouzivaju sietnicovy
+		referencny ramec, kt. je znamena ze nase informacie o pozicii objektu su specifikovane poziciou objektu na sietnici.
+		
+		Proces zmeny vnemovych signalov na motoricke plany sa nazyva Sensorimotor integrations. 
+		To moze byt vnimane ako specificky pripad multimodlanej intergracie, ktora sa zaobera tym ako su informacie z roznych zmyslovych organov spracovane a spolu pouzite v ludskej mysli.
+		Casto to je formalizove v zmysle priestorovej transformacie z suradnic oci alebo head-centered do shoulder-centered suradnic.
+		
+	--- Eye–hand transformations
+		
+		Nelinearne trasformacie vizualneho objektu do postupu pohybu ruk na uchytenie objektu.
+		Z vypoctoveho hladiska je to narocne operacia, pretoze centra otaciania oci, ruk a ramien nie su vzajomne prepojene a musia
+		sa navzajom hybat (relativne) s kazdym pohybom hlavy. Transformacia musi byt vykonana postunym sposobom, pretoze otacanie nie je komutativne operacia
+		
+		
+	--- 2.1.2 First neuroscientific findings
+			
+			Bunky v PPC sa zda, leninearne kombinuju informacie z roznych zmyslovych organov.
+			Cistlivost buniek je modulovana jednym zo zmyslovych organov, bez toho aby bol tento organ zmeneny.
+			To sa nazyva GAIN MODULATION a zmeny v cislivosti su nazyvane GAIN FIELDS. Gain modulation sa javi ako proves, kt. je zakladany princip transformacie suradnic.
+		
+			Pri skumani VIP (ventral intraparietal area) boli najdene bunky, ktore sa ciastocne hybu na zaklade smeru pohladu. Tieto bunky sa nachadzaju niekde 
+			medzi ramcom oka a ramcom hlavou centrovanym.
+			
+			Gain fields a ciastocne pohyby buniek boli taktiez najdene v skrytych vrstach ANN trenovanej na transfomaciu medzi referencnymi vrstvami.
+			
+	
