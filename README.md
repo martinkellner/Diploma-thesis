@@ -13,6 +13,8 @@ Sensory processing in the brain entails multisensory integration (combining cues
 ## Bibliography
 * <a href="http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003035">Makin J., Fellows M., & Sabes P. (2013). Learning multisensory integration and coordinate transformation via density estimation. PLOS: Comput. Biol., 9(4).</a>
 
-* <a href="http://alis.uniba.sk/storage/ddp/dostupne/FM/2013/2013-FM-43608/56780v1.pdf">Švec M., Farkaš I. (2014). Calculation of object position in various reference frames with a robotic simulator. In Proceedings of the 36th Annual Conference of the Cognitive Science Society, Quebec, Canada.</a>
+* <a href="http://cogsci.fmph.uniba.sk/~farkas/Papers/svec-farkas.cogsci14.pdf">Švec M., Farkaš I. (2014). Calculation of object position in various reference frames with a robotic simulator. In Proceedings of the 36th Annual Conference of the Cognitive Science Society, Quebec, Canada.</a>
+
+* <a href="http://alis.uniba.sk/storage/ddp/dostupne/FM/2013/2013-FM-43608/56780v1.pdf">Švec M., Farkaš I. (2014). Representation of object position in various frames of reference using a robotic simulator</a>
 
 * Tikhanoff V., Fitzpatrick P., Nori F., Natale L., Metta G., & Cangelosi A. (2008). The iCub humanoid robot simulator. Advanced Robotics, 1(1), 22-26.
