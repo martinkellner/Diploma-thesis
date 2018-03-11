@@ -1,4 +1,4 @@
-Poznamky ku diplomovej praci M. Sveca.
+﻿Poznamky ku diplomovej praci M. Sveca.
 
 slova:
 	senzoricky --- zmyslovy, suvisiaci s vnimaním vonakajsieho sveta
@@ -44,13 +44,48 @@ slova:
 		
 	--- 2.1.2 First neuroscientific findings
 			
-			Bunky v PPC sa zda, leninearne kombinuju informacie z roznych zmyslovych organov.
-			Cistlivost buniek je modulovana jednym zo zmyslovych organov, bez toho aby bol tento organ zmeneny.
-			To sa nazyva GAIN MODULATION a zmeny v cislivosti su nazyvane GAIN FIELDS. Gain modulation sa javi ako proves, kt. je zakladany princip transformacie suradnic.
+		Bunky v PPC sa zda, leninearne kombinuju informacie z roznych zmyslovych organov.
+		Cistlivost buniek je modulovana jednym zo zmyslovych organov, bez toho aby bol tento organ zmeneny.
+		To sa nazyva GAIN MODULATION a zmeny v cislivosti su nazyvane GAIN FIELDS. Gain modulation sa javi ako proves, kt. je zakladany princip transformacie suradnic.
 		
-			Pri skumani VIP (ventral intraparietal area) boli najdene bunky, ktore sa ciastocne hybu na zaklade smeru pohladu. Tieto bunky sa nachadzaju niekde 
-			medzi ramcom oka a ramcom hlavou centrovanym.
+		Pri skumani VIP (ventral intraparietal area) boli najdene bunky, ktore sa ciastocne hybu na zaklade smeru pohladu. Tieto bunky sa nachadzaju niekde 
+		medzi ramcom oka a ramcom hlavou centrovanym.
 			
-			Gain fields a ciastocne pohyby buniek boli taktiez najdene v skrytych vrstach ANN trenovanej na transfomaciu medzi referencnymi vrstvami.
+		Gain fields a ciastocne pohyby buniek boli taktiez najdene v skrytych vrstach ANN trenovanej na transfomaciu medzi referencnymi vrstvami.
 			
+	--- 2.2 Gain fields
+		
+		Experimetom sa zistilo, ze vnimove polia neuronov nemenia tvar ani poziciu ale sa len modifikovane nejakym ziskovym factorom (gain field)
+		Neuronova siet na pocitanie telovo-centrovanu poziciu cielu z oko-centrovanej vizualnych podnetov a smeru pohladu. Siet spontanne rozvijala vnemove polia zisku modulovane o poziciu
+		oci podobnej tomu co bolo pozorovne v PPC
+		
+		Typy signalov, ktore mozu produkovat Gain fields zahrnaju smer pohladu, poziciu hlavy, vzdialenost ciela a dalsie a tieto vsetky vedu k predpokladu ze ziskova modulacia je jeden z hlavnych mechanizmov pre multimodalne intergracie
+		pozpoznavanie objektov, motoricke procesy alebo sustredenia sa.
+
+		Podla teoritickej studie je jednou z moznosti, ze silne rekurentne spojenia mozu viest ku multiplikativnych ziskovych poli.
+		Situacia s rek. spojenymi neuronmi ju taktiiz viac realne v mozgu a mozu byt vysoko ucinne pri eliminovany neuronoveho sumu.
+
+	--- 2.2.1 Computing with gain fields
+
+		Matematika:
+			r = f(x_tar - a) g(x_gaze) je amplituda odpovede.
+			kde g(x_gaze) je gain field, x_gaze uhol pohladu
+		
+		odpoved nasledujuceho neuronu riadneho ziskovou modulovanou popolaciou
+		ma nasledujucu formu: 
+			
+			R = F(c_1 x_tar + c_2 x_gaz) je funckia reprezentujuca vnemove pole.
+		
+
+		OTAZKA !!! na R
+
+		Toto je kľúčový matematický výsledok, pretože to znamená, že súbor
+		neuróny v smere prúdu môžu explicitne reprezentovať množstvo xtarget + xgaze, zatiaľ čo
+		ďalšia sada môže predstavovať xtarget - xgaze, obe sú poháňané rovnakou populáciou
+		získať modulované neuróny.
 	
+	
+
+	GAIN MODULATION
+	RESPONSE FIELD OF NEURON
+	GAIN FIELDS 

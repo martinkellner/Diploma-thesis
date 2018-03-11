@@ -1,0 +1,16 @@
+Poznámky ku článku: Learning Multisensory Integration and Coordinate Transformation via Density Estimation
+					Joseph G. Makin.*, Matthew R. Fellows., Philip N. Sabes
+					
+Introduction:
+
+	Posterior probability, in Bayesian statistics: P(G|T) = P(T|G)*P(G)/P(T)
+	
+	The information about the same feature of the same object are provided by multiple sources. The best will not throw away any information, because fidelity is limited by various reasons.
+	-> In Bayesians terms, the posterious probability over the stimulus given the activities of the neurons will match the corresponding posterious given the input signals.
+	Encoding in the integrating neurons the entiry posterior is crusial, because this distribution contains the informations about the confidence of the estimate.
+	The human subjects appear to choose the actions based of the peak of the optimal posterior over the stimulus, given by a variety of multisensory inputs.
+	
+	
+	The integration is learned.
+	The plausible neural model, then, must learn without supervision how to combine optimally signals from two or more input population.
+	
