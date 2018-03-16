@@ -19,3 +19,7 @@ Sensory processing in the brain entails multisensory integration (combining cues
 * <a href="http://alis.uniba.sk/storage/ddp/dostupne/FM/2013/2013-FM-43608/56780v1.pdf">Švec M., Farkaš I. (2014). Representation of object position in various frames of reference using a robotic simulator</a>
 
 * Tikhanoff V., Fitzpatrick P., Nori F., Natale L., Metta G., & Cangelosi A. (2008). The iCub humanoid robot simulator. Advanced Robotics, 1(1), 22-26.
+
+* Ian Goodfellow, Yoshua Bengio, Aaron Courville (2016). Deep Learning.
+MIT Press, pp. 654-720.
+
