@@ -1,6 +1,7 @@
 **Author:** Martin Kellner<br>
 **E-mail:** *martinkellner1(at)gmail.com* or *kellner7(at)uniba.sk* <br>
-**Supervisor:** prof. Ing. Igor Farkaš, Dr.
+**Supervisor:** prof. Ing. Igor Farkaš, Dr. <br>
+**Diploma thesis** *(Current Version)* **:** [link to pdf](https://github.com/martinkellner/Diploma-thesis/blob/master/thesis/diploma.pdf)
 
 ## Annotation
 Sensory processing in the brain entails multisensory integration (combining cues into a single common underlying stimulus) and coordinate transformations (the change of reference frame for a stimulus, e.g. retinotopic to body-centered, effected through knowledge about an intervening variable, e.g. gaze position). This ability is crucial in cognitive robotics in order to endow robots with an ability to operate autonomously in the 3D space.
