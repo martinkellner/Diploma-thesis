@@ -21,5 +21,5 @@ Sensory processing in the brain entails multisensory integration (combining cues
 * Tikhanoff V., Fitzpatrick P., Nori F., Natale L., Metta G., & Cangelosi A. (2008). The iCub humanoid robot simulator. Advanced Robotics, 1(1), 22-26.
 
 * Ian Goodfellow, Yoshua Bengio, Aaron Courville (2016). Deep Learning.
-MIT Press, pp. 654-720.
+MIT Press, pp. 654-720, 587-589
 
