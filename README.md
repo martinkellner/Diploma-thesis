@@ -1,6 +1,7 @@
 **Author:** Martin Kellner<br>
 **E-mail:** *martinkellner1(at)gmail.com* or *kellner7(at)uniba.sk* <br>
 **Supervisor:** prof. Ing. Igor Farkaš, Dr. <br>
+**Department:* Department of Applied Informatics - Faculty of Mathematics, Physics and Informatics, Comenius University in Bratislava* 
 **Diploma thesis** *(Current Version)* **:** [link to pdf](https://github.com/martinkellner/Diploma-thesis/blob/master/thesis/diploma.pdf)
 
 ## Annotation
@@ -20,6 +21,6 @@ Sensory processing in the brain entails multisensory integration (combining cues
 
 * Tikhanoff V., Fitzpatrick P., Nori F., Natale L., Metta G., & Cangelosi A. (2008). The iCub humanoid robot simulator. Advanced Robotics, 1(1), 22-26.
 
-* Ian Goodfellow, Yoshua Bengio, Aaron Courville (2016). Deep Learning.
-MIT Press, pp. 654-720, 587-589
+* <a href="http://www.deeplearningbook.org/"> Ian Goodfellow, Yoshua Bengio, Aaron Courville (2016). Deep Learning.
+MIT Press, pp. 654-720, 587-589 </a>
 
