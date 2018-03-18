@@ -1,7 +1,7 @@
 **Author:** Martin Kellner<br>
 **E-mail:** *martinkellner1(at)gmail.com* or *kellner7(at)uniba.sk* <br>
 **Supervisor:** prof. Ing. Igor Farkaš, Dr. <br>
-**Department:* Department of Applied Informatics - Faculty of Mathematics, Physics and Informatics, Comenius University in Bratislava* 
+**Department:** Department of Applied Informatics - FMPH, Comenius University in Bratislava <br>
 **Diploma thesis** *(Current Version)* **:** [link to pdf](https://github.com/martinkellner/Diploma-thesis/blob/master/thesis/diploma.pdf)
 
 ## Annotation
