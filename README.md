@@ -26,5 +26,5 @@ MIT Press, pp. 654-720, 587-589 </a>
  5.3  -  11.3 -- introduction to the diploma problem, reading [3], [2] <br>
 12.3  -  18.3 -- reading [1] <br>
 19.3  -  25.3 -- introduction to RBM and Bayesian statistics [5] <br>
-26.3  -   9.4 -- reading and reporting [1], [6] <br>
+26.3  -   9.4 -- reading and writing [reports](https://github.com/martinkellner/Diploma-thesis/wiki) of [1], [6] <br>
   
