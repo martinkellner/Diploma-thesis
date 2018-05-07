@@ -71,7 +71,7 @@ void My_ICub::headMovement() {
     IPositionControl *pos;
     IEncoders *encs;
     bool correct;
-    PolyDriver robot_head_driver = this.getRobotHeadDriver();
+    PolyDriver robot_head_driver = this->getRobotHeadDriver();
 
     if (!(robot_head_driver == NULL)) {
         correct = robot_head_driver.view(pos);
