@@ -31,7 +31,7 @@ class My_ICub {
             left_cam_port,
             right_cam_port;
 
-        PolyDriver *head_driver;
+        PolyDriver* head_driver;
 };
 
 #endif

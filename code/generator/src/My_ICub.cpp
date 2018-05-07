@@ -23,26 +23,26 @@ My_ICub::My_ICub(string robot_name, string own_port_name) {
     this->robot_name = robot_name;
     this->own_port_name = own_port_name;
     //Ports
-    this->head_port = '/head';
-    this->left_cam_port = '/cam/left';
-    this->right_cam_port = '/cam/right';
+    head_port = '/head';
+    left_cam_port = '/cam/left';
+    right_cam_port = '/cam/right';
     //Drivers
-    this->head_driver = NULL;
+    head_driver = NULL;
 };
 
 My_ICub::~My_ICub() {
-    if ( !(this->head_driver == NULL) ) {
-        this->head_driver->close();
-        delete this->head_driver;
-        this->head_driver = NULL;
+    if ( !(head_driver==NULL) ) {
+        head_driver->close();
+        delete head_driver;
+        head_driver = NULL;
     };
 };
 
 string My_ICub::getFullPortName(string port, bool own) {
     if (own) {
-        return this->own_port_name + port;
+        return own_port_name + port;
     };
-    return this->robot_name + port;
+    return robot_name + port;
 };
 
 bool My_ICub::connectToPort(string port, bool write) {
@@ -52,26 +52,26 @@ bool My_ICub::connectToPort(string port, bool write) {
 };
 
 PolyDriver *My_ICub::getRobotHeadDriver() {
-    if (this->head_driver == NULL) {
+    if (head_driver==NULL) {
         Property options;
         options.put("device", "remote_controlboard");
-        options.put("local", this->getFullPortName(this->head_port, true).c_str());
-        options.put("remote", this->getFullPortName(this->head_port, false).c_str());
+        options.put("local", getFullPortName(head_port, true).c_str());
+        options.put("remote", getFullPortName(head_port, false).c_str());
 
-        this->head_driver = new PolyDriver(options);
-        if (!(this->head_driver->isValid() == false)) {
+        head_driver = new PolyDriver(options);
+        if (!(head_driver->isValid())) {
             printf("Device not available.  Here are the known devices:\n");
             printf("%s", Drivers::factory().toString().c_str());
         };
     };
-    return this->head_driver;
+    return head_driver;
 };
 
 void My_ICub::headMovement() {
     IPositionControl *pos;
     IEncoders *encs;
     bool correct;
-    PolyDriver robot_head_driver = this.getRobotHeadDriver();
+    PolyDriver robot_head_driver = this->getRobotHeadDriver();
 
     if (!(robot_head_driver == NULL)) {
         correct = robot_head_driver.view(pos);
