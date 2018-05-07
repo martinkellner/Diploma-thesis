@@ -8,7 +8,6 @@ using namespace std;
 #include <yarp/dev/PolyDriver.h>
 using namespace yarp::dev;
 
-
 class My_ICub {
     
 public:
@@ -24,7 +23,7 @@ protected:
         robot_name,
         own_port_name;
 
-    bool connectToPort(string port, bool write=true);
+    bool connectToPort(string port, bool write);
     PolyDriver *getRobotHeadDriver();
 
 private:

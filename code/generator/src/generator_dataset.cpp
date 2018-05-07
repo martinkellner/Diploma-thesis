@@ -1,11 +1,7 @@
-#include <stdio.h>
+#include <string>
 using namespace std;
 
-#include <iostream>
-#include <fstream>
-#include <string>
 #include <yarp/os/Network.h>
-
 using namespace yarp::os;
 
 #include <yarp/dev/PolyDriver.h>
