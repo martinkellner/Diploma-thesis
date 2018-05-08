@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include <stdio>
+
 using namespace std;
 
 #include <yarp/dev/all.h>
@@ -85,7 +85,7 @@ void My_ICub::headMovement() {
 
     if (!correct) {
         printf("Cannot get interface to robot head\n");
-        robot_head_driver.close();
+        robot_head_driver->close();
         return;
     };
     // TODO: Change icub's head position by given parameters
@@ -95,11 +95,18 @@ void My_ICub::headMovement() {
     Vector setpoints;
     setpoints.resize(jnts);
 
-    cout << jnts;   // print axis
-
-    double x = 320/2;
-    double y = 240/2;
-
-    double vx = x*.1;
-    double vy = -y*.1;
+    cout << "Vypis jnts:" << jnts << endl;   // print axis
+    
+    for (int j=0; j<15; j++) {
+    
+        for (int i=0; i<jnts; i++) {
+            setpoints[i] = 0;
+        };
+        
+        setpoints[3] = j;
+        setpoints[4] = j;
+        
+        vel->velocityMove(setpoints.data());
+        cout << j << ". vypis: poslane" << endl;
+    };
 };

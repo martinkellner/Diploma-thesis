@@ -12,6 +12,6 @@ using namespace yarp::dev;
 int main() {
     Network yarp;
     My_ICub *icub = new My_ICub();
-
-    PolyDriver *driver = icub->getRobotHeadDriver();
+    
+    icub->headMovement();
 };
