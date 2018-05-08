@@ -14,7 +14,7 @@ using namespace yarp::sig;
 #include <yarp/os/Network.h>
 using namespace yarp::os;
 
-#include <Windows.h>
+#include <unistd.h>
 #include "My_ICub.h"
 //_____________________________________________________________________________
 //______ CONSTRUCTOR, DESTRUCTOR, STATIC DECLARATIONS _________________________
@@ -83,7 +83,7 @@ IPositionControl *My_ICub::getHeadController() {
     return head_controller;
 };
 
-void My_ICub::headMovement(double angle, int axis=0, bool wait=false) {
+void My_ICub::headMovement(double angle, int axis, bool wait) {
     IPositionControl *head_controller = getHeadController();
     if (head_controller==NULL) {
         return;
@@ -103,7 +103,7 @@ void My_ICub::headMovement(double angle, int axis=0, bool wait=false) {
         bool is_done = false;
         while(!is_done) {
             head_controller->checkMotionDone(&is_done);
-            Sleep(10);
+            usleep(10);
         };
     };
 };

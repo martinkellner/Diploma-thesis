@@ -16,7 +16,7 @@ class My_ICub {
         ~My_ICub();
 
         string getFullPortName(string port, bool own);
-        void headMovement(double angle, int axis=0, bool wait=false);
+        void headMovement(double angle, int axis, bool wait);
         PolyDriver *getRobotHeadDriver();
 
     protected:
