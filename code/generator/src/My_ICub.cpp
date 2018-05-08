@@ -1,11 +1,9 @@
 #include <iostream>
 #include <string>
+#include <stdio>
 using namespace std;
 
-#include <yarp/dev/PolyDriver.h>
-#include <yarp/dev/ControlBoardInterfaces.h>
-#include <yarp/dev/IPositionControl.h>
-#include <yarp/dev/IEncoders.h>
+#include <yarp/dev/all.h>
 using namespace yarp::dev;
 
 #include <yarp/sig/Vector.h>
@@ -73,15 +71,35 @@ PolyDriver *My_ICub::getRobotHeadDriver() {
 void My_ICub::headMovement() {
     IPositionControl *pos;
     IEncoders *encs;
+    IVelocityControl *vel;
     bool correct;
     PolyDriver *robot_head_driver = getRobotHeadDriver();
 
     if (!(robot_head_driver == NULL)) {
         correct = robot_head_driver->view(pos);
         correct = correct && robot_head_driver->view(encs);
+        correct = correct && robot_head_driver->view(vel);
     } else {
         printf("Problems acquiring interfaces\n");
+    };
 
+    if (!correct) {
+        printf("Cannot get interface to robot head\n");
+        robot_head_driver.close();
+        return;
     };
     // TODO: Change icub's head position by given parameters
+
+    int jnts = 0;
+    pos->getAxes(&jnts);
+    Vector setpoints;
+    setpoints.resize(jnts);
+
+    cout << jnts;   // print axis
+
+    double x = 320/2;
+    double y = 240/2;
+
+    double vx = x*.1;
+    double vy = -y*.1;
 };
