@@ -17,7 +17,9 @@ int main() {
     for (int i=0; i<5; i++) {
         double angle = 30.0;
         icub->headMovement(angle, axs, true);
+        icub->rightArmMovement(angle, axs, true);
         angle = angle * (-1);
         icub->headMovement(angle, axs, true);
+        icub->rightArmMovement(angle, axs, true);
     };
 };

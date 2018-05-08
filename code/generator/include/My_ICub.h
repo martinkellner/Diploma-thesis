@@ -17,25 +17,30 @@ class My_ICub {
 
         string getFullPortName(string port, bool own);
         void headMovement(double angle, int axis, bool wait);
-        PolyDriver *getRobotHeadDriver();
+        void rightArmMovement(double angle, int axis, bool wait);
 
     protected:
         string
             robot_name,
             own_port_name;
-
         bool connectToPort(string port, bool write);
 
     private:
         string
             head_port,
             left_cam_port,
-            right_cam_port;
+            right_cam_port,
+            right_arm_port;
 
         PolyDriver* head_driver;
+        PolyDriver* right_arm_driver;
         IPositionControl* head_controller;
+        IPositionControl* right_arm_controller;
 
         IPositionControl* getHeadController();
+        IPositionControl* getRightArmController();
+        PolyDriver *getRobotHeadDriver();
+        PolyDriver *getRobotRightArmDriver();
 };
 
 #endif
