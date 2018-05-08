@@ -3,7 +3,9 @@
 
 using namespace std;
 
-#include <yarp/dev/all.h>
+#include <yarp/dev/PolyDriver.h>
+#include <yarp/dev/IPositionControl.h>
+#include <yarp/dev/ControlBoardInterfaces.h>
 using namespace yarp::dev;
 
 #include <yarp/sig/Vector.h>
@@ -12,6 +14,7 @@ using namespace yarp::sig;
 #include <yarp/os/Network.h>
 using namespace yarp::os;
 
+#include <Windows.h>
 #include "My_ICub.h"
 //_____________________________________________________________________________
 //______ CONSTRUCTOR, DESTRUCTOR, STATIC DECLARATIONS _________________________
@@ -26,6 +29,7 @@ My_ICub::My_ICub(string robot_name, string own_port_name) {
     right_cam_port = "/cam/right";
     //Drivers
     head_driver = NULL;
+    head_controller = NULL;
 };
 
 My_ICub::~My_ICub() {
@@ -68,45 +72,38 @@ PolyDriver *My_ICub::getRobotHeadDriver() {
     return head_driver;
 };
 
-void My_ICub::headMovement() {
-    IPositionControl *pos;
-    IEncoders *encs;
-    IVelocityControl *vel;
-    bool correct;
-    PolyDriver *robot_head_driver = getRobotHeadDriver();
-
-    if (!(robot_head_driver == NULL)) {
-        correct = robot_head_driver->view(pos);
-        correct = correct && robot_head_driver->view(encs);
-        correct = correct && robot_head_driver->view(vel);
-    } else {
-        printf("Problems acquiring interfaces\n");
+IPositionControl *My_ICub::getHeadController() {
+    if (head_controller==NULL) {
+        PolyDriver *head_driver = getRobotHeadDriver();
+        head_driver->view(head_controller);
+        if (head_controller==NULL) {
+            printf("Problem acquiring interfaces\n");
+        };
     };
+    return head_controller;
+};
 
-    if (!correct) {
-        printf("Cannot get interface to robot head\n");
-        robot_head_driver->close();
+void My_ICub::headMovement(double angle, int axis=0, bool wait=false) {
+    IPositionControl *head_controller = getHeadController();
+    if (head_controller==NULL) {
         return;
     };
-    // TODO: Change icub's head position by given parameters
 
     int jnts = 0;
-    pos->getAxes(&jnts);
-    Vector setpoints;
-    setpoints.resize(jnts);
+    head_controller->getAxes(&jnts);
+    Vector position;
+    position.resize(jnts);
 
-    cout << "Vypis jnts:" << jnts << endl;   // print axis
-    
-    for (int j=0; j<15; j++) {
-    
-        for (int i=0; i<jnts; i++) {
-            setpoints[i] = 0;
+    for (int i=0; i < jnts; i++) {
+        position[i] = 0;
+    };
+    position[axis] = angle;
+    head_controller->positionMove(position.data());
+    if (wait) {
+        bool is_done = false;
+        while(!is_done) {
+            head_controller->checkMotionDone(&is_done);
+            Sleep(10);
         };
-        
-        setpoints[3] = j;
-        setpoints[4] = j;
-        
-        vel->velocityMove(setpoints.data());
-        cout << j << ". vypis: poslane" << endl;
     };
 };
