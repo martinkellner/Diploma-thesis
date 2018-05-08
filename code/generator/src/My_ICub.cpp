@@ -23,9 +23,9 @@ My_ICub::My_ICub(string robot_name, string own_port_name) {
     this->robot_name = robot_name;
     this->own_port_name = own_port_name;
     //Ports
-    head_port = '/head';
-    left_cam_port = '/cam/left';
-    right_cam_port = '/cam/right';
+    head_port = "/head";
+    left_cam_port = "/cam/left";
+    right_cam_port = "/cam/right";
     //Drivers
     head_driver = NULL;
 };
@@ -40,8 +40,11 @@ My_ICub::~My_ICub() {
 
 string My_ICub::getFullPortName(string port, bool own) {
     if (own) {
+	printf((own_port_name + port).c_str());
         return own_port_name + port;
     };
+
+    printf((robot_name + port).c_str());
     return robot_name + port;
 };
 
@@ -71,11 +74,11 @@ void My_ICub::headMovement() {
     IPositionControl *pos;
     IEncoders *encs;
     bool correct;
-    PolyDriver robot_head_driver = this->getRobotHeadDriver();
+    PolyDriver *robot_head_driver = getRobotHeadDriver();
 
     if (!(robot_head_driver == NULL)) {
-        correct = robot_head_driver.view(pos);
-        correct = correct && robot_head_driver.view(encs);
+        correct = robot_head_driver->view(pos);
+        correct = correct && robot_head_driver->view(encs);
     } else {
         printf("Problems acquiring interfaces\n");
 

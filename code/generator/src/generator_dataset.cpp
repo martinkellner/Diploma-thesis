@@ -9,7 +9,6 @@ using namespace yarp::dev;
 
 #include "My_ICub.h"
 
-
 int main() {
     Network yarp;
     My_ICub *icub = new My_ICub();
