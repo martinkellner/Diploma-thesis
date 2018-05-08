@@ -13,5 +13,11 @@ int main() {
     Network yarp;
     My_ICub *icub = new My_ICub();
 
-    PolyDriver *driver = icub->getRobotHeadDriver();
+    int axs = 0;
+    for (int i=0; i<5; i++) {
+        double angle = 30.0;
+        icub->headMovement(angle, axs, true);
+        angle = angle * (-1);
+        icub->headMovement(angle, axs, true);
+    };
 };
