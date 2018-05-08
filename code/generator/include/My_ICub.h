@@ -6,6 +6,7 @@
 using namespace std;
 
 #include <yarp/dev/PolyDriver.h>
+#include <yarp/dev/IPositionControl.h>
 using namespace yarp::dev;
 
 class My_ICub {
@@ -15,7 +16,7 @@ class My_ICub {
         ~My_ICub();
 
         string getFullPortName(string port, bool own);
-        void headMovement();
+        void headMovement(double angle, int axis=0, bool wait=false);
         PolyDriver *getRobotHeadDriver();
 
     protected:
@@ -32,6 +33,9 @@ class My_ICub {
             right_cam_port;
 
         PolyDriver* head_driver;
+        IPositionControl* head_controller;
+
+        IPositionControl* getHeadController();
 };
 
 #endif
