@@ -20,3 +20,7 @@ Sensory processing in the brain entails multisensory integration (combining cues
 5. <a href="http://www.deeplearningbook.org/"> Ian Goodfellow, Yoshua Bengio, Aaron Courville (2016). Deep Learning.
 MIT Press, pp. 654-720, 587-589 </a>
 6. <a href="http://www.kyb.tuebingen.mpg.de/fileadmin/user_upload/files/publications/pdfs/pdf2507.pdf"> Marc O. Ernst and Heinrich H. Bulthoff. Merging the senses into a robust percept</a>
+
+## Progress
+
+The first presentation about my progress: (www.st.fmph.uniba.sk/~kellner7/prez/ds.pdf)[pdf]
