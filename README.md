@@ -23,4 +23,4 @@ MIT Press, pp. 654-720, 587-589 </a>
 
 ## Progress
 
-The first presentation about my progress: <a href="www.st.fmph.uniba.sk/~kellner7/prez/ds.pdf">pdf</a>
+The first presentation about my progress: <a href="http://www.st.fmph.uniba.sk/~kellner7/prez/ds.pdf">pdf</a>
