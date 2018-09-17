@@ -9,6 +9,14 @@ using namespace std;
 #include <yarp/dev/IPositionControl.h>
 using namespace yarp::dev;
 
+#include <yarp/sig/Image.h>
+#include <yarp/sig/Vector.h>
+using namespace yarp::sig;
+
+#include <yarp/os/BufferedPort.h>
+#include <yarp/os/RpcClient.h>
+using namespace yarp::os;
+
 class My_ICub {
     
     public:
@@ -17,7 +25,10 @@ class My_ICub {
 
         string getFullPortName(string port, bool own);
         void headMovement(double angle, int axis, bool wait);
-        void rightArmMovement(double angle, int axis, bool wait);
+        void rightArmMovement(Vector &position, bool wait);
+        ImageOf<PixelRgb> *getRobotRightEyeImage();
+        ImageOf<PixelRgb> *getRobotLeftEyeImage();
+        int getRightArmJoints();
 
     protected:
         string
@@ -34,13 +45,21 @@ class My_ICub {
 
         PolyDriver* head_driver;
         PolyDriver* right_arm_driver;
+
         IPositionControl* head_controller;
         IPositionControl* right_arm_controller;
 
+        BufferedPort<ImageOf<PixelRgb>> *left_cam;
+        BufferedPort<ImageOf<PixelRgb>> *right_cam;
+
         IPositionControl* getHeadController();
         IPositionControl* getRightArmController();
+
         PolyDriver *getRobotHeadDriver();
         PolyDriver *getRobotRightArmDriver();
+
+        BufferedPort<ImageOf<PixelRgb>> *getRobotRightEyeDriver();
+        BufferedPort<ImageOf<PixelRgb>> *getRobotLeftEyeDriver();
 };
 
 #endif

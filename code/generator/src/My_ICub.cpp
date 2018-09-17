@@ -9,12 +9,16 @@ using namespace std;
 using namespace yarp::dev;
 
 #include <yarp/sig/Vector.h>
+#include <yarp/sig/Image.h>
 using namespace yarp::sig;
 
 #include <yarp/os/Network.h>
+#include <yarp/os/BufferedPort.h>
 using namespace yarp::os;
 
 #include <unistd.h>
+#include <My_ICub.h>
+
 #include "My_ICub.h"
 //_____________________________________________________________________________
 //______ CONSTRUCTOR, DESTRUCTOR, STATIC DECLARATIONS _________________________
@@ -33,6 +37,8 @@ My_ICub::My_ICub(string robot_name, string own_port_name) {
     right_arm_driver = NULL;
     head_controller = NULL;
     right_arm_controller = NULL;
+    left_cam = NULL;
+    right_cam = NULL;
 };
 
 My_ICub::~My_ICub() {
@@ -137,20 +143,12 @@ void My_ICub::headMovement(double angle, int axis, bool wait) {
     };
 };
 
-void My_ICub::rightArmMovement(double angle, int axis, bool wait) {
+void My_ICub::rightArmMovement(Vector &position, bool wait) {
     IPositionControl *right_arm_controller = getRightArmController();
     if (right_arm_controller==NULL) {
         return;
     };
-    int jnts = 0;
-    right_arm_controller->getAxes(&jnts);
-    Vector position;
-    position.resize(jnts);
 
-    for (int i=0; i<jnts; i++) {
-        position[i] = 0;
-    };
-    position[axis] = angle;
     right_arm_controller->positionMove(position.data());
     if (wait) {
         bool is_done = false;
@@ -159,4 +157,37 @@ void My_ICub::rightArmMovement(double angle, int axis, bool wait) {
             usleep(10);
         };
     };
+};
+
+BufferedPort<ImageOf<PixelRgb>> *My_ICub::getRobotRightEyeDriver() {
+    if (right_cam == NULL) {
+        right_cam = new BufferedPort<ImageOf<PixelRgb>>();
+        right_cam->open(getFullPortName(right_cam_port, true).c_str());
+        this->connectToPort(right_cam_port, false);
+    };
+    return right_cam;
+}
+
+BufferedPort<ImageOf<PixelRgb>> *My_ICub::getRobotLeftEyeDriver() {
+    if (left_cam == NULL) {
+        left_cam = new BufferedPort<ImageOf<PixelRgb>>();
+        left_cam->open(getFullPortName(left_cam_port, true).c_str());
+        this->connectToPort(left_cam_port, false);
+    };
+
+    return left_cam;
+}
+
+ImageOf<PixelRgb> *My_ICub::getRobotRightEyeImage() {
+    return getRobotRightEyeDriver()->read();
+}
+
+ImageOf<PixelRgb> *My_ICub::getRobotLeftEyeImage() {
+    return getRobotLeftEyeDriver()->read();
+}
+
+int My_ICub::getRightArmJoints() {
+    int joints = 0;
+    getRightArmController()->getAxes(&joints);
+    return joints;
 };
