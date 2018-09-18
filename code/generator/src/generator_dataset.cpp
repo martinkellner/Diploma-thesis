@@ -1,4 +1,5 @@
 #include <string>
+#include "iostream"
 using namespace std;
 
 #include <yarp/os/Network.h>
@@ -26,12 +27,37 @@ int main() {
     for (int i = 0; i < joint; i++) {
         position[i] = 0;
     };
+    // minimal values for significant joints
+    position[0] = -95.5; // shoulder pitch, max: 8
+    position[1] = 0;     // shoulder roll, max: 160
+    position[2] = -32;   // shoulder yaw, max: 80
+    position[3] = 15;    // elbow, max: 106
 
     // a cycle over the entire space of the hand, each of joints is sequentially incresed by a constant angle (variable 'angle')
-    for (int i=0; i<90; i++) {
-        axs = i%joint;
-        if (axs > 6) continue;
-        position[axs] = position[axs] + angle;
-        icub->rightArmMovement(position, true);
+    int itr = 0;
+    while (true) {
+        cout << itr + 1 << ".movement, joints values -> " << "pos[0]: " << position[0] << " pos[1]: " << position[1] << " pos[2]: " << position[2]<< " pos[3]: " << position[3];
+        axs = itr%4;
+        if (((position[0] + 15) < 8) || ((position[1] + 15) < 160) || ((position[2] + 15) < 80) || ((position[3] + 15) < 106)) {
+            if (axs == 0 && position[0] + 15 < 8) {
+                position[0] = position[0] + 15;
+            } else if (axs == 1 && position[1] + 15 < 160) {
+                position[1] = position[1] + 15;
+            } else if (axs == 2 && position[2] + 15 < 80) {
+                position[2] = position[2] + 15;
+            } else if (axs == 3 && position[3] + 15 < 106) {
+                position[3] = position[3] + 15;
+            }
+            icub->rightArmMovement(position, true);
+        } else {
+            position[0] = 8;
+            position[1] = 160;
+            position[2] = 80;
+            position[3] = 15;
+            icub->rightArmMovement(position, true);
+            break;
+        };
+        cout << " -- DONE!\n";
+        itr = itr + 1;
     };
 };
