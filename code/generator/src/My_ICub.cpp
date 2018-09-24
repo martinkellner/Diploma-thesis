@@ -119,20 +119,57 @@ IPositionControl *My_ICub::getRightArmController() {
     return right_arm_controller;
 };
 
-void My_ICub::headMovement(double angle, int axis, bool wait) {
+void My_ICub::headMovement(double angle) {
     IPositionControl *head_controller = getHeadController();
     if (head_controller==NULL) {
         return;
     };
     int jnts = 0;
     head_controller->getAxes(&jnts);
+
     Vector position;
     position.resize(jnts);
 
     for (int i=0; i < jnts; i++) {
         position[i] = 0;
     };
-    position[axis] = angle;
+    // Minimal values for head's joints
+    position[0] = -30;          // Neck pitch
+    position[1] = -20;          // Neck roll
+    position[2] = -45;          // Neck yaw
+
+    int itr = 0;
+    int axs;
+
+    while (true) {
+        axs = itr%3;
+        cout << " \t" << itr + 1 << ". head movement, joints values -> " << "pos[0]: " << position[0] << " pos[1]: " << position[1] << " pos[2]: " << position[2] << endl;
+        if ((position[0] + angle < 22) || (position[1] + angle < 20) || (position[2] + angle < 45)) {
+            if (axs == 0 && position[0] + angle < 22) {
+                position[0] = position[0] + angle;
+            } else if (axs == 1 && position[1] + angle < 20) {
+                position[1] = position[1] + angle;
+            } else if (axs == 2 && position[2] + angle < 45) {
+                position[2] = position[2] + angle;
+            };
+            setHeadPosition(position, true);
+        }
+        else {
+            position[0] = 22;
+            position[1] = 20;
+            position[2] = 45;
+            setHeadPosition(position, true);
+            cout << " \t" << itr + 1 << ". head movement, joints values -> " << "pos[0]: " << position[0] << " pos[1]: " << position[1] << " pos[2]: " << position[2] << endl;
+            break;
+        };
+        itr = itr + 1;
+    };
+};
+
+void My_ICub::setHeadPosition(Vector position, bool wait) {
+    if (head_controller==NULL) {
+        getHeadController();
+    };
     head_controller->positionMove(position.data());
     if (wait) {
         bool is_done = false;
@@ -166,7 +203,7 @@ BufferedPort<ImageOf<PixelRgb>> *My_ICub::getRobotRightEyeDriver() {
         this->connectToPort(right_cam_port, false);
     };
     return right_cam;
-}
+};
 
 BufferedPort<ImageOf<PixelRgb>> *My_ICub::getRobotLeftEyeDriver() {
     if (left_cam == NULL) {
@@ -176,18 +213,22 @@ BufferedPort<ImageOf<PixelRgb>> *My_ICub::getRobotLeftEyeDriver() {
     };
 
     return left_cam;
-}
+};
 
 ImageOf<PixelRgb> *My_ICub::getRobotRightEyeImage() {
     return getRobotRightEyeDriver()->read();
-}
+};
 
 ImageOf<PixelRgb> *My_ICub::getRobotLeftEyeImage() {
     return getRobotLeftEyeDriver()->read();
-}
+};
 
 int My_ICub::getRightArmJoints() {
     int joints = 0;
     getRightArmController()->getAxes(&joints);
     return joints;
+};
+
+void takeImages() {
+
 };

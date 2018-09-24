@@ -24,10 +24,8 @@ class My_ICub {
         ~My_ICub();
 
         string getFullPortName(string port, bool own);
-        void headMovement(double angle, int axis, bool wait);
+        void headMovement(double angle);
         void rightArmMovement(Vector &position, bool wait);
-        ImageOf<PixelRgb> *getRobotRightEyeImage();
-        ImageOf<PixelRgb> *getRobotLeftEyeImage();
         int getRightArmJoints();
 
     protected:
@@ -43,7 +41,13 @@ class My_ICub {
             right_cam_port,
             right_arm_port;
 
-        PolyDriver* head_driver;
+        void setHeadPosition(Vector position, bool wait);
+        void takeImages();
+        ImageOf<PixelRgb> *getRobotRightEyeImage();
+        ImageOf<PixelRgb> *getRobotLeftEyeImage();
+
+
+    PolyDriver* head_driver;
         PolyDriver* right_arm_driver;
 
         IPositionControl* head_controller;

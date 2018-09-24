@@ -23,7 +23,7 @@ int main() {
     Vector position;
     position.resize(joint);
 
-    // Set start position of the right arm, for now is a null vector //TODO: detect correct initial position for each of joints
+    // Set start position of the right arm, for now is a null vector
     for (int i = 0; i < joint; i++) {
         position[i] = 0;
     };
@@ -38,23 +38,26 @@ int main() {
     while (true) {
         cout << itr + 1 << ".movement, joints values -> " << "pos[0]: " << position[0] << " pos[1]: " << position[1] << " pos[2]: " << position[2]<< " pos[3]: " << position[3];
         axs = itr%4;
-        if (((position[0] + 15) < 8) || ((position[1] + 15) < 160) || ((position[2] + 15) < 80) || ((position[3] + 15) < 106)) {
-            if (axs == 0 && position[0] + 15 < 8) {
-                position[0] = position[0] + 15;
-            } else if (axs == 1 && position[1] + 15 < 160) {
-                position[1] = position[1] + 15;
-            } else if (axs == 2 && position[2] + 15 < 80) {
-                position[2] = position[2] + 15;
-            } else if (axs == 3 && position[3] + 15 < 106) {
-                position[3] = position[3] + 15;
+
+        if (((position[0] + angle) < 8) || ((position[1] + angle) < 160) || ((position[2] + angle) < 80) || ((position[3] + angle) < 106)) {
+            if (axs == 0 && position[0] + angle < 8) {
+                position[0] = position[0] + angle;
+            } else if (axs == 1 && position[1] + angle < 160) {
+                position[1] = position[1] + angle;
+            } else if (axs == 2 && position[2] + angle < 80) {
+                position[2] = position[2] + angle;
+            } else if (axs == 3 && position[3] + angle < 106) {
+                position[3] = position[3] + angle;
             }
             icub->rightArmMovement(position, true);
+            icub->headMovement(angle);
         } else {
             position[0] = 8;
             position[1] = 160;
             position[2] = 80;
             position[3] = 15;
             icub->rightArmMovement(position, true);
+            icub->headMovement(angle);
             break;
         };
         cout << " -- DONE!\n";
