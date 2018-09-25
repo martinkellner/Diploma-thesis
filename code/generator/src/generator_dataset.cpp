@@ -12,7 +12,16 @@ using namespace yarp::dev;
 
 #include "My_ICub.h"
 
-int main() {
+int main(int argc, char* argv[]) {
+    string path;
+    if (argc > 0) {
+        path = argv[1];
+        cout << "Directory for saving data: " << path << endl;
+    } else {
+        path = "/home/martin/School/Diploma-thesis/code/generator/data/";
+        cout << "Directory for saving data: " << path << " (Default)" << endl;
+    }
+
     Network yarp;
     My_ICub *icub = new My_ICub();
     int axs, joint;
@@ -50,14 +59,14 @@ int main() {
                 position[3] = position[3] + angle;
             }
             icub->rightArmMovement(position, true);
-            icub->headMovement(angle);
+            icub->headMovement(angle, path);
         } else {
             position[0] = 8;
             position[1] = 160;
             position[2] = 80;
             position[3] = 15;
             icub->rightArmMovement(position, true);
-            icub->headMovement(angle);
+            icub->headMovement(angle, path);
             break;
         };
         cout << " -- DONE!\n";

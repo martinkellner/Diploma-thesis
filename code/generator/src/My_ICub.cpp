@@ -10,6 +10,7 @@ using namespace yarp::dev;
 
 #include <yarp/sig/Vector.h>
 #include <yarp/sig/Image.h>
+#include <yarp/sig/ImageFile.h>
 using namespace yarp::sig;
 
 #include <yarp/os/Network.h>
@@ -119,7 +120,7 @@ IPositionControl *My_ICub::getRightArmController() {
     return right_arm_controller;
 };
 
-void My_ICub::headMovement(double angle) {
+void My_ICub::headMovement(double angle, string path) {
     IPositionControl *head_controller = getHeadController();
     if (head_controller==NULL) {
         return;
@@ -153,6 +154,7 @@ void My_ICub::headMovement(double angle) {
                 position[2] = position[2] + angle;
             };
             setHeadPosition(position, true);
+            takeAndSaveImages(itr, path);
         }
         else {
             position[0] = 22;
@@ -160,6 +162,7 @@ void My_ICub::headMovement(double angle) {
             position[2] = 45;
             setHeadPosition(position, true);
             cout << " \t" << itr + 1 << ". head movement, joints values -> " << "pos[0]: " << position[0] << " pos[1]: " << position[1] << " pos[2]: " << position[2] << endl;
+            takeAndSaveImages(itr, path);
             break;
         };
         itr = itr + 1;
@@ -229,6 +232,23 @@ int My_ICub::getRightArmJoints() {
     return joints;
 };
 
-void takeImages() {
+void My_ICub::takeAndSaveImages(int number, string path) {
+    string filename;
+    ImageOf<PixelRgb> *leftImg  = getRobotLeftEyeImage();
+    if (leftImg!=NULL) {
+        filename = path + "l_" + to_string(number) + ".ppm";
+        yarp::sig::file::write(*leftImg, filename);
+        cout << "\tReceived image from the left eye was saved as " <<  filename << endl;
+    };
+    ImageOf<PixelRgb> *rightImg = getRobotRightEyeImage();
+    if (leftImg!=NULL) {
+        filename = path + "r_" + to_string(number) + ".ppm";
+        yarp::sig::file::write(*rightImg, filename);
+        cout << "\tReceived image from the right eye was saved as " << filename << endl;
+    };
+
+
+
+
 
 };

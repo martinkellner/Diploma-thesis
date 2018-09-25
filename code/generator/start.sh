@@ -12,5 +12,11 @@ gnome-terminal -e iCub_SIM
 # it may take a few seconds to start yarpserver and iCub, so wait for 2 seconds
 sleep 4
 # run generator and collect data
-./dataset
+PATH=$1
+if [ $# -eq 0]; then
+    ./dataset	    #No arguments passed!
+else 
+	./dataset $PATH #Path to folder for saving data 
+fi 
+
 

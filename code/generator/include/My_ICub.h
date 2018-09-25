@@ -24,7 +24,7 @@ class My_ICub {
         ~My_ICub();
 
         string getFullPortName(string port, bool own);
-        void headMovement(double angle);
+        void headMovement(double angle, string path);
         void rightArmMovement(Vector &position, bool wait);
         int getRightArmJoints();
 
@@ -42,7 +42,7 @@ class My_ICub {
             right_arm_port;
 
         void setHeadPosition(Vector position, bool wait);
-        void takeImages();
+        void takeAndSaveImages(int number, string path);
         ImageOf<PixelRgb> *getRobotRightEyeImage();
         ImageOf<PixelRgb> *getRobotLeftEyeImage();
 
