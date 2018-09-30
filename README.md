@@ -22,7 +22,7 @@ Sensory processing in the brain entails multisensory integration (combining cues
 MIT Press, pp. 654-720, 587-589 </a>
 6. <a href="http://www.kyb.tuebingen.mpg.de/fileadmin/user_upload/files/publications/pdfs/pdf2507.pdf"> Marc O. Ernst and Heinrich H. Bulthoff. Merging the senses into a robust percept</a>
 
-*(All free PDF articles can be found on [https://github.com/martinkellner/Diploma-thesis/notes/pdf](https://github.com/martinkellner/Diploma-thesis/notes/pdf))*
+*(All free PDF articles can be found on [https://github.com/martinkellner/Diploma-thesis/tree/master/notes/pdf](https://github.com/martinkellner/Diploma-thesis/tree/master/notes/pdf))*
 
 ## Progress
 
