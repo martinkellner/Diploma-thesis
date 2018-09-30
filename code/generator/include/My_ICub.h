@@ -3,6 +3,7 @@
 #define MY_ICUB_H
 
 #include <string.h>
+#include <fstream>
 using namespace std;
 
 #include <yarp/dev/PolyDriver.h>
@@ -15,6 +16,7 @@ using namespace yarp::sig;
 
 #include <yarp/os/BufferedPort.h>
 #include <yarp/os/RpcClient.h>
+
 using namespace yarp::os;
 
 class My_ICub {
@@ -24,11 +26,12 @@ class My_ICub {
         ~My_ICub();
 
         string getFullPortName(string port, bool own);
-        void headMovement(double angle, string path);
+        void headMovement(double angle, string path, int number);
         void rightArmMovement(Vector &position, bool wait);
         int getRightArmJoints();
+        void closeDataFile();
 
-    protected:
+protected:
         string
             robot_name,
             own_port_name;
@@ -39,15 +42,19 @@ class My_ICub {
             head_port,
             left_cam_port,
             right_cam_port,
-            right_arm_port;
+            right_arm_port,
+            last_head_position,
+            last_arm_position;
 
+        ofstream datafile;
+        void getDataFile(string path);
         void setHeadPosition(Vector position, bool wait);
-        void takeAndSaveImages(int number, string path);
+        void takeAndSaveImages(int number, int itr, string path);
+        void saveAngles(int number, int itr, string path);
         ImageOf<PixelRgb> *getRobotRightEyeImage();
         ImageOf<PixelRgb> *getRobotLeftEyeImage();
 
-
-    PolyDriver* head_driver;
+        PolyDriver* head_driver;
         PolyDriver* right_arm_driver;
 
         IPositionControl* head_controller;

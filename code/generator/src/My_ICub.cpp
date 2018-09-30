@@ -29,17 +29,21 @@ My_ICub::My_ICub(string robot_name, string own_port_name) {
     this->robot_name = robot_name;
     this->own_port_name = own_port_name;
     //Ports
-    head_port = "/head";
-    left_cam_port = "/cam/left";
-    right_cam_port = "/cam/right";
-    right_arm_port = "/right_arm";
+    head_port           = "/head";
+    left_cam_port       = "/cam/left";
+    right_cam_port      = "/cam/right";
+    right_arm_port      = "/right_arm";
+    last_arm_position;
+    last_head_position;
     //Drivers
-    head_driver = NULL;
-    right_arm_driver = NULL;
-    head_controller = NULL;
-    right_arm_controller = NULL;
-    left_cam = NULL;
-    right_cam = NULL;
+    head_driver             = NULL;
+    right_arm_driver        = NULL;
+    head_controller         = NULL;
+    right_arm_controller    = NULL;
+    left_cam                = NULL;
+    right_cam               = NULL;
+    //Others
+    datafile;
 };
 
 My_ICub::~My_ICub() {
@@ -120,7 +124,7 @@ IPositionControl *My_ICub::getRightArmController() {
     return right_arm_controller;
 };
 
-void My_ICub::headMovement(double angle, string path) {
+void My_ICub::headMovement(double angle, string path, int number) {
     IPositionControl *head_controller = getHeadController();
     if (head_controller==NULL) {
         return;
@@ -154,7 +158,9 @@ void My_ICub::headMovement(double angle, string path) {
                 position[2] = position[2] + angle;
             };
             setHeadPosition(position, true);
-            takeAndSaveImages(itr, path);
+            last_head_position = to_string(position[0]) + " " + to_string(position[1]) + " " + to_string(position[2]);
+            takeAndSaveImages(number, itr, path);
+            saveAngles(number, itr, path);
         }
         else {
             position[0] = 22;
@@ -162,7 +168,7 @@ void My_ICub::headMovement(double angle, string path) {
             position[2] = 45;
             setHeadPosition(position, true);
             cout << " \t" << itr + 1 << ". head movement, joints values -> " << "pos[0]: " << position[0] << " pos[1]: " << position[1] << " pos[2]: " << position[2] << endl;
-            takeAndSaveImages(itr, path);
+            takeAndSaveImages(number, itr, path);
             break;
         };
         itr = itr + 1;
@@ -197,6 +203,8 @@ void My_ICub::rightArmMovement(Vector &position, bool wait) {
             usleep(10);
         };
     };
+    cout << "-------------------------------------" << endl;
+    last_arm_position = to_string(position[0]) + " " + to_string(position[1]) + " " + to_string(position[2]) + " " + to_string(position[3]) + " ";
 };
 
 BufferedPort<ImageOf<PixelRgb>> *My_ICub::getRobotRightEyeDriver() {
@@ -232,23 +240,34 @@ int My_ICub::getRightArmJoints() {
     return joints;
 };
 
-void My_ICub::takeAndSaveImages(int number, string path) {
+void My_ICub::takeAndSaveImages(int number, int itr, string path) {
     string filename;
     ImageOf<PixelRgb> *leftImg  = getRobotLeftEyeImage();
     if (leftImg!=NULL) {
-        filename = path + "l_" + to_string(number) + ".ppm";
+        filename = path + to_string(number) +  "_" + to_string(itr) + "_L" + ".ppm";
         yarp::sig::file::write(*leftImg, filename);
-        cout << "\tReceived image from the left eye was saved as " <<  filename << endl;
+        //cout << "\tReceived image from the left eye was saved as " <<  filename << endl;
     };
     ImageOf<PixelRgb> *rightImg = getRobotRightEyeImage();
-    if (leftImg!=NULL) {
-        filename = path + "r_" + to_string(number) + ".ppm";
+    if (rightImg!=NULL) {
+        filename = path + to_string(number) + "_" + to_string(itr) + "_R" + ".ppm";
         yarp::sig::file::write(*rightImg, filename);
-        cout << "\tReceived image from the right eye was saved as " << filename << endl;
+        //cout << "\tReceived image from the right eye was saved as " << filename << endl;
     };
-
-
-
-
-
 };
+
+void My_ICub::getDataFile(string path) {
+    if (!datafile.is_open()) {
+        datafile.open(path + "dataset.txt");
+    };
+};
+
+void My_ICub::saveAngles(int number, int itr, string path) {
+    getDataFile(path);
+    string unq_number = to_string(number) + " " + to_string(itr);
+    datafile << unq_number + " " + last_arm_position + last_head_position + '\n';
+};
+
+void My_ICub::closeDataFile() {
+    datafile.close();
+}

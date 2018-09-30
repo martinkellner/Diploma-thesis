@@ -1,5 +1,6 @@
 #include <string>
 #include "iostream"
+#include <fstream>
 using namespace std;
 
 #include <yarp/os/Network.h>
@@ -21,6 +22,13 @@ int main(int argc, char* argv[]) {
         path = "/home/martin/School/Diploma-thesis/code/generator/data/";
         cout << "Directory for saving data: " << path << " (Default)" << endl;
     }
+
+    fstream datafile (path + "dataset.txt", fstream::out);
+    if (!datafile.is_open()) {
+        cout << "Unable to open data file: " << path + "dataset.txt" << endl;
+        cout << "Program exits!" << endl;
+        return 0;
+    };
 
     Network yarp;
     My_ICub *icub = new My_ICub();
@@ -59,17 +67,22 @@ int main(int argc, char* argv[]) {
                 position[3] = position[3] + angle;
             }
             icub->rightArmMovement(position, true);
-            icub->headMovement(angle, path);
+            icub->headMovement(angle, path, itr);
         } else {
             position[0] = 8;
             position[1] = 160;
             position[2] = 80;
             position[3] = 15;
-            icub->rightArmMovement(position, true);
-            icub->headMovement(angle, path);
+            icub->rightArmMovement(position, itr);
+            icub->headMovement(angle, path, itr);
             break;
         };
+        //TODO: remove this useless
+        if (itr == 2) {
+            break;
+        }
         cout << " -- DONE!\n";
         itr = itr + 1;
     };
+    icub->closeDataFile();
 };
