@@ -4,6 +4,7 @@
 
 #include <string.h>
 #include <fstream>
+#include <vector>
 using namespace std;
 
 #include <yarp/dev/PolyDriver.h>
@@ -26,10 +27,13 @@ class My_ICub {
         ~My_ICub();
 
         string getFullPortName(string port, bool own);
-        void headMovement(double angle, string path, int number);
-        void rightArmMovement(Vector &position, bool wait);
+        enum Way {RANDOM};
+        void collectingData(string path, int number, Way way);
+        void setRightArmPosition(Vector &position, bool wait);
         int getRightArmJoints();
         void closeDataFile();
+        void prepareDatasetFile(string path, double const angle);
+
 
 protected:
         string
@@ -47,10 +51,15 @@ protected:
             last_arm_position;
 
         ofstream datafile;
-        void getDataFile(string path);
+        int getDataFile(string path);
         void setHeadPosition(Vector position, bool wait);
-        void takeAndSaveImages(int number, int itr, string path);
-        void saveAngles(int number, int itr, string path);
+        void takeAndSaveImages(string path, string name);
+        void writeToDataFile(string str);
+        double randomAngle(double minAngle, double maxAngle);
+        void randomCollecting(string path, int startFrom, int total, int imagesCount, bool armSeen);
+        void randomRightArmPosition(Vector position, bool wait);
+        void randomHeadPosition(Vector position, bool wait);
+
         ImageOf<PixelRgb> *getRobotRightEyeImage();
         ImageOf<PixelRgb> *getRobotLeftEyeImage();
 
@@ -63,8 +72,8 @@ protected:
         BufferedPort<ImageOf<PixelRgb>> *left_cam;
         BufferedPort<ImageOf<PixelRgb>> *right_cam;
 
-        IPositionControl* getHeadController();
-        IPositionControl* getRightArmController();
+        IPositionControl *getHeadController();
+        IPositionControl *getRightArmController();
 
         PolyDriver *getRobotHeadDriver();
         PolyDriver *getRobotRightArmDriver();
