@@ -12,6 +12,7 @@ using namespace yarp::os;
 using namespace yarp::dev;
 
 #include "My_ICub.h"
+#include "matrix_operations.h"
 
 int main(int argc, char* argv[]) {
     string path;
@@ -23,7 +24,7 @@ int main(int argc, char* argv[]) {
         cout << "Directory for saving data: " << path << " (Default)" << endl;
     }
 
-    fstream datafile (path + "dataset.txt", fstream::out);
+    fstream datafile(path + "dataset.txt", fstream::out);
     if (!datafile.is_open()) {
         cout << "Unable to open data file: " << path + "dataset.txt" << endl;
         cout << "Program exits!" << endl;
@@ -32,7 +33,9 @@ int main(int argc, char* argv[]) {
 
     Network yarp;
     My_ICub *icub = new My_ICub();
-    icub->collectingData(path, 100, icub->RANDOM);
+
+    //icub->collectingData(path, 100, icub->RANDOM);
+    icub->test();
     icub->closeDataFile();
 };
 

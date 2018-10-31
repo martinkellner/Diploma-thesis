@@ -8,6 +8,8 @@ using namespace std;
 #include <yarp/dev/PolyDriver.h>
 #include <yarp/dev/IPositionControl.h>
 #include <yarp/dev/ControlBoardInterfaces.h>
+#include <yarp/dev/GazeControl.h>
+#include <yarp/dev/CartesianControl.h>
 using namespace yarp::dev;
 
 #include <yarp/sig/Vector.h>
@@ -23,6 +25,10 @@ using namespace yarp::os;
 #include <My_ICub.h>
 
 #include "My_ICub.h"
+#include "matrix_operations.h"
+#include "yarp_world_rpc.h"
+using namespace MatrixOperations;
+
 //_____________________________________________________________________________
 //______ CONSTRUCTOR, DESTRUCTOR, STATIC DECLARATIONS _________________________
 
@@ -31,21 +37,32 @@ My_ICub::My_ICub(string robot_name, string own_port_name) {
     this->robot_name = robot_name;
     this->own_port_name = own_port_name;
     //Ports
+    world_port          = "/world";
     head_port           = "/head";
     left_cam_port       = "/cam/left";
     right_cam_port      = "/cam/right";
     right_arm_port      = "/right_arm";
+    left_arm_port       = "/left_arm";
     last_arm_position;
     last_head_position;
     //Drivers
     head_driver             = NULL;
     right_arm_driver        = NULL;
+    left_arm_driver         = NULL;
     head_controller         = NULL;
     right_arm_controller    = NULL;
+    left_arm_controller     = NULL;
     left_cam                = NULL;
     right_cam               = NULL;
+    gaze_driver             = NULL;
+    iGaze                   = NULL;
+    world_client            = NULL;
     //Others
     datafile;
+
+    this->setRightArmVector();
+    this->setArmToDefaultPosition(RIGHT);
+    this->setArmToDefaultPosition(LEFT);
 };
 
 My_ICub::~My_ICub() {
@@ -58,7 +75,7 @@ My_ICub::~My_ICub() {
 
 string My_ICub::getFullPortName(string port, bool own) {
     if (own) {
-	printf((own_port_name + port).c_str());
+	    printf((own_port_name + port).c_str());
         return own_port_name + port;
     };
 
@@ -88,23 +105,58 @@ PolyDriver *My_ICub::getRobotHeadDriver() {
     return head_driver;
 };
 
-PolyDriver *My_ICub::getRobotRightArmDriver() {
-    if (right_arm_driver==NULL) {
-        Property options;
-        options.put("device", "remote_controlboard");
-        options.put("local", getFullPortName(right_arm_port, true).c_str());
-        options.put("remote", getFullPortName(right_arm_port, false).c_str());
+void My_ICub::getRobotGazeInteface() {
+    if (iGaze == NULL) {
+        Property option;
+        option.put("device", "gazecontrollerclient");
+        option.put("remote", "/iKinGazeCtrl");
+        option.put("local", getFullPortName("/igaze", true));
+        gaze_driver = new PolyDriver(option);
+        if (gaze_driver->isValid()) {
+            gaze_driver->view(iGaze);
+        } else {
+            cout << "Received iGaze controller is not valid!" << endl;
+            return;
+        }
+    }
+}
 
-        right_arm_driver = new PolyDriver(options);
-        if (!(right_arm_driver->isValid())) {
-            printf("Device not available.  Here are the known devices:\n");
-            printf("%s", Drivers::factory().toString().c_str());
-        };
-    };
-    return right_arm_driver;
-};
+PolyDriver *My_ICub::getRobotArmDriver(Hand hand) {
+    if (hand == RIGHT) {
+        if (right_arm_driver == NULL) {
+            Property options;
+            options.put("device", "remote_controlboard");
+            options.put("local", getFullPortName(right_arm_port, true).c_str());
+            options.put("remote", getFullPortName(right_arm_port, false).c_str());
+            right_arm_driver = new PolyDriver(options);
 
-IPositionControl *My_ICub::getHeadController() {
+            if (!(right_arm_driver->isValid())) {
+                printf("Device not available.  Here are the known devices:\n");
+                printf("%s", Drivers::factory().toString().c_str());
+            }
+        }
+
+        return right_arm_driver;
+
+    } else if (hand == LEFT) {
+        if (left_arm_driver == NULL) {
+            Property options;
+            options.put("device", "remote_controlboard");
+            options.put("local", getFullPortName(left_arm_port, true).c_str());
+            options.put("remote", getFullPortName(left_arm_port, false).c_str());
+            left_arm_driver = new PolyDriver(options);
+
+            if (!(left_arm_driver->isValid())) {
+                printf("Device not available.  Here are the known devices:\n");
+                printf("%s", Drivers::factory().toString().c_str());
+            }
+        }
+
+        return left_arm_driver;
+    }
+}
+
+void My_ICub::getHeadController() {
     if (head_controller==NULL) {
         PolyDriver *head_driver = getRobotHeadDriver();
         head_driver->view(head_controller);
@@ -112,18 +164,22 @@ IPositionControl *My_ICub::getHeadController() {
             printf("Problem acquiring interfaces\n");
         };
     };
-    return head_controller;
 };
 
-IPositionControl *My_ICub::getRightArmController() {
-    if (right_arm_controller==NULL) {
-        PolyDriver *right_arm_driver = getRobotRightArmDriver();
+void My_ICub::getArmController(Hand hand) {
+    if (hand == RIGHT && right_arm_controller==NULL) {
+        right_arm_driver = getRobotArmDriver(RIGHT);
         right_arm_driver->view(right_arm_controller);
         if (right_arm_controller==NULL) {
-            printf("Problem acquiring interfaces\n");
+            fprintf(stderr, "Problem acquiring interfaces\n");
+        };
+    } else if (hand == LEFT && left_arm_controller==NULL) {
+        left_arm_driver = getRobotArmDriver(LEFT);
+        left_arm_driver->view(left_arm_controller);
+        if (left_arm_controller==NULL) {
+            fprintf(stderr, "Problem acquiring interfaces\n");
         };
     };
-    return right_arm_controller;
 };
 
 void My_ICub::collectingData(string path, int number, Way way) {
@@ -167,30 +223,28 @@ void My_ICub::collectingData(string path, int number, Way way) {
     };*/
 };
 
-void My_ICub::setHeadPosition(Vector position, bool wait) {
-    if (head_controller==NULL) {
-        getHeadController();
-    };
-    head_controller->positionMove(position.data());
-    if (wait) {
-        bool is_done = false;
-        while(!is_done) {
-            head_controller->checkMotionDone(&is_done);
-            usleep(10);
-        };
-    };
-};
+void My_ICub::setArmPosition(Hand hand, bool wait) {
+    // TODO: discover constrains for arms' angles
 
-void My_ICub::setRightArmPosition(Vector &position, bool wait) {
-    if (right_arm_controller==NULL) {
-        getRightArmController();
-    };
-    right_arm_controller->positionMove(position.data());
-    if (wait) {
-        bool is_done = false;
-        while (!is_done) {
-            right_arm_controller->checkMotionDone(&is_done);
-            usleep(10);
+    if (hand == RIGHT) {
+        getArmController(RIGHT);
+        right_arm_controller->positionMove(right_arm_vector.data());
+        if (wait) {
+            bool is_done = false;
+            while (!is_done) {
+                right_arm_controller->checkMotionDone(&is_done);
+                usleep(10);
+            };
+        };
+    } else if (hand == LEFT) {
+        getArmController(LEFT);
+        left_arm_controller->positionMove(right_arm_vector.data());
+        if (wait) {
+            bool is_done = false;
+            while (!is_done) {
+                right_arm_controller->checkMotionDone(&is_done);
+                usleep(10);
+            };
         };
     };
 };
@@ -210,7 +264,6 @@ BufferedPort<ImageOf<PixelRgb>> *My_ICub::getRobotLeftEyeDriver() {
         left_cam->open(getFullPortName(left_cam_port, true).c_str());
         this->connectToPort(left_cam_port, false);
     };
-
     return left_cam;
 };
 
@@ -223,8 +276,8 @@ ImageOf<PixelRgb> *My_ICub::getRobotLeftEyeImage() {
 };
 
 int My_ICub::getRightArmJoints() {
-    int joints = 0;
-    getRightArmController()->getAxes(&joints);
+    int joints;
+    right_arm_controller->getAxes(&joints);
     return joints;
 };
 
@@ -264,41 +317,30 @@ double My_ICub::randomAngle(double minAngle, double maxAngle) {
 
 void My_ICub::randomCollecting(string path, int startFrom, int total, int imagesCount, bool armSeen) {
 
-    getRightArmController();  getHeadController();
-    int armJnts, headJnts;
-    right_arm_controller->getAxes(&armJnts); head_controller->getAxes(&headJnts);
-    Vector armPos, headPos;
-    armPos.resize(armJnts); headPos.resize(headJnts);
+    getArmController(RIGHT);
+    getHeadController();
+    getWorldRpcClient();
 
     for (int i = startFrom; i < total; i++) {
-        randomHeadPosition(headPos, true);
-        writeToDataFile(last_head_position + '\n');
-        for (int j = 0; j < imagesCount; j++) {
-            randomRightArmPosition(armPos, true);
-            writeToDataFile('\t' + last_arm_position + ' ');
-            takeAndSaveImages(path, to_string(i) + "_" + to_string(j));
-            writeToDataFile("\n");
-        };
-        // TODO: Implement collecting images that include a part of the right arm! (VARIABLE: armSeen)
+        writeToDataFile(to_string(i) + ". ");
+        deleteAllObject();                              // delete all objects that was created
+        randomRightArmPosition(true);                   // random hand position
+        saveRightHandAngles();                          // save current right hand angles
+        Vector handWPos = getRightPalmWorldPosition();  // receive hand position in world reference frame
+        cout << handWPos.toString() << endl;
+        cout << "objects deleted" << endl;
+        setArmToDefaultPosition(RIGHT);                 // move right hand to default position
+        cout << "set to defalut" << endl;
+        putObjectToPosition(handWPos);                  // put an object to previous right hand pose
+        lookAtPosition(handWPos);                       // look at the object
+        saveHandAngles();                               // save current head angles
+        saveObjectPosition(handWPos);                   // save current object's pose
+        takeAndSaveImages(path, to_string(i));          // save images from icub cameras
+        writeToDataFile("\n");
     };
 };
 
-void My_ICub::randomHeadPosition(Vector position, bool wait) {
-    // Range of head's joints
-    // ----------------------
-    // Neck pitch <-30, 22>
-    // Neck roll  <-20, 20>
-    // Neck yaw   <-45, 45>
-    // ----------------------
-
-    position[0] = randomAngle(-30, 22);
-    position[1] = randomAngle(-20, 20);
-    position[2] = randomAngle(-45, 45);
-    //setHeadPosition(position, wait);
-    last_head_position = to_string(position[0]) + " " + to_string(position[1]) + " " + to_string(position[2]);
-};
-
-void My_ICub::randomRightArmPosition(Vector position, bool wait) {
+void My_ICub::randomRightArmPosition(bool wait) {
     // Ranges of arm's joint
     // ----------------------
     // Shoulder pitch <-95.5, 8>
@@ -306,15 +348,118 @@ void My_ICub::randomRightArmPosition(Vector position, bool wait) {
     // Shoulder yaw   <-32, 80>
     // Elbow          <15, 106>
 
-    position[0] = randomAngle(-95.5, 8);
-    position[1] = randomAngle(0, 160);
-    position[2] = randomAngle(-32, 80);
-    position[3] = randomAngle(15, 106);
-    //setRightArmPosition(position, wait);
-    last_arm_position = to_string(position[0]) + " " + to_string(position[1]) + " " + to_string(position[2]) + " " + to_string(position[3]);
+    right_arm_vector[0] = randomAngle(-95.5, 8);
+    right_arm_vector[1] = randomAngle(0, 160);
+    right_arm_vector[2] = randomAngle(-32, 80);
+    right_arm_vector[3] = randomAngle(15, 106);
+    setArmPosition(RIGHT, wait);
+
 };
 
 void My_ICub::writeToDataFile(string str) {
     datafile << str;
 }
 
+void My_ICub::lookAtPosition(Vector worldVct) {
+    // The robot will look at new fixation point using iGaze interface
+    getRobotGazeInteface();
+    Vector rootVct(3);
+    // Rototransfomation from world reference frame to root frame.
+    MatrixOperations::rotoTransfWorldRoot(worldVct, rootVct);
+
+    iGaze->lookAtFixationPointSync(rootVct);
+    iGaze->waitMotionDone();
+
+}
+
+void My_ICub::getWorldRpcClient() {
+    if (world_client==NULL) {
+        world_client = new RpcClient();
+        world_client->open(getFullPortName(world_port, true));
+        connectToPort(world_port, true);
+    }
+}
+
+void My_ICub::putObjectToPosition(Vector worldVct) {
+    getWorldRpcClient();
+    // Delete all old objects generated by previous steps of collecting data
+    deleteAllObject();
+    Bottle rqs, res;
+
+    rqs = WorldYaprRpc::createBOX(worldVct);
+    world_client->write(rqs, res);
+}
+
+void My_ICub::deleteAllObject() {
+    getWorldRpcClient();
+    Bottle rqs = WorldYaprRpc::deleteAllObjects();
+    Bottle req;
+    world_client->write(rqs, req);
+}
+
+Vector My_ICub::getRightPalmWorldPosition() {
+    getWorldRpcClient();
+    Bottle rqs, res;
+
+    rqs = WorldYaprRpc::getRightHandWorldPosition();
+    world_client->write(rqs, res);
+
+    Vector rHandWPos(4);
+    rHandWPos[0] = res.get(0).asFloat32();
+    rHandWPos[1] = res.get(1).asFloat32();
+    rHandWPos[2] = res.get(2).asFloat32();
+    rHandWPos[3] = 1;
+    return rHandWPos;
+}
+
+void My_ICub::setArmToDefaultPosition(Hand hand) {
+    // set right or left arm's angles so the hand could not be visible by iCub.
+    right_arm_vector[0] = right_arm_vector[1] = right_arm_vector[2] = 10; right_arm_vector[3] = 20;
+
+    if (hand == RIGHT) {
+        getArmController(RIGHT);
+        setArmPosition(RIGHT, true);
+    } else if (hand == LEFT) {
+        getArmController(LEFT);
+        setArmPosition(LEFT, true);
+    };
+}
+
+void My_ICub::test() {
+    getHeadController();
+    getArmController(RIGHT);
+
+}
+
+void My_ICub::setRightArmVector() {
+    getArmController(RIGHT);
+    int jnts = getRightArmJoints();
+    right_arm_vector.resize(jnts);
+    double refs;
+
+    for (int i=0; i < jnts; i++) {
+        right_arm_controller->getTargetPosition(i, &refs);
+        right_arm_vector[i] = refs;
+    }
+}
+
+void My_ICub::saveHandAngles() {
+    getHeadController();
+    double refs;
+    for (int i = 0; i < 3; ++i) {
+        head_controller->getTargetPosition(i, &refs);
+        datafile << refs << " ";
+    }
+}
+
+void My_ICub::saveRightHandAngles() {
+    for (int i = 0; i < 4; ++i) {
+        datafile << right_arm_vector[i] << " ";
+    }
+}
+
+void My_ICub::saveObjectPosition(Vector obj) {
+    for (int i=0; i<3; i++) {
+        datafile << obj[i] << " ";
+    }
+}
