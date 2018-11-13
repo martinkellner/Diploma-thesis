@@ -40,6 +40,7 @@ void MatrixOperations::rotoTransfWorldRoot(Vector worldVct, Vector &rootVct) {
     // Rototransfomation to the reference frame.
     rootVctE = rototransM * worldVctE;
     // Setting Eigen vector's data to the result root vector (yarp vector)
+    rootVct.resize(3);
     float *resData = rootVctE.data();
     for (int i=0; i<3; i++) {
         rootVct[i] = resData[i];

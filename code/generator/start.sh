@@ -1,22 +1,19 @@
 #!/bin/bash
-rm -p ~/.config/yarp/yarp.conf
-# make build directrory if not exist
-mkdir -p build/ && cd build/
-# create required cmake's files and create a executable file 
-cmake .. && make
 
-# open a new terminal and run yarpserver
-gnome-terminal -e yarpserver
-# open a new terminal and run a instance of iCub 
-gnome-terminal -e iCub_SIM
-# it may take a few seconds to start yarpserver and iCub, so wait for 2 seconds
-sleep 4
-# run generator and collect data
-PATH=$1
-if [ $# -eq 0]; then
-    ./dataset	    #No arguments passed!
-else 
-	./dataset $PATH #Path to folder for saving data 
-fi 
+yarpserver &
 
+sleep 2
 
+iCub_SIM & 
+
+sleep 2 
+
+yarprobotinterface --context simCartesianControl &
+ 
+sleep 2
+
+iKinCartesianSolver --part right_arm &
+
+sleep 2
+
+iKinGazeCtrl --robot icubSim --imu::mode off &

@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
     Network yarp;
     My_ICub *icub = new My_ICub();
 
-    //icub->collectingData(path, 100, icub->RANDOM);
+    //icub->collectingData(path, 100, icub->LOOK);
     icub->test();
     icub->closeDataFile();
 };
