@@ -119,7 +119,7 @@ protected:
         void getCurrentFixPoint(Vector &vector);
         void randomHeadMotions(int direction, int steps, double minAng, double maxAngle);
         void getHeadCurrentVector(Vector &headAngles);
-        void korwardKinArmMovement(Hand hand, Vector pose);
+        void invKinArmMovement(Hand hand, Vector pose);
         void armMovement(Vector diff, bool wait);
         void printVector(Vector vec);
 };

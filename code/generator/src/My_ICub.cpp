@@ -622,18 +622,24 @@ void My_ICub::test() {
             head_controller->checkMotionDone(&is_done);
             usleep(10);
         }
-
         getCurrentFixPoint(fixPoint);
-        printf("%f\n", fixPoint[0]);
     }
-
-    int steps = 3;
-    Vector poses(steps*3);
-    randomHeadMotions(5, steps, 5, 15);
+    randomHeadMotions(4, 5, 4, 10);
 }
 
 void My_ICub::randomHeadMotions(int direction, int steps, double minAng, double maxAngle) {
-    getHeadController();
+    Property option;
+    option.put("device", "cartesiancontrollerclient");
+    option.put("remote", "/icubSim/cartesianController/right_arm");
+    option.put("local", "/client/right_arm");
+
+    PolyDriver clientCartCtrl(option);
+    ICartesianControl *icart = NULL;
+    if (clientCartCtrl.isValid()) {
+        clientCartCtrl.view(icart);
+    }
+    icart->setTrajTime(.2);  // given in seconds
+
     Vector headAngles; getHeadCurrentVector(headAngles);
 
     double xDir, xDiff, yDir, yDiff;
@@ -641,14 +647,19 @@ void My_ICub::randomHeadMotions(int direction, int steps, double minAng, double 
     xDir = directions[direction*2];
     yDir = directions[(direction*2)+1];
     Vector fixPoint(3);
-
+    Vector err(3); Vector wHandY, rHandY;
     for (int i=0; i<steps; i++) {
         xDiff = randomAngle(minAng, maxAngle)*xDir;
         yDiff = randomAngle(minAng, maxAngle)*yDir;
         headAngles[0] += xDiff; headAngles[2] += yDiff;
         setHeadAnglesAndMove(headAngles);
         getCurrentFixPoint(fixPoint);
-        korwardKinArmMovement(RIGHT, fixPoint);
+        icart->goToPosition(fixPoint);
+        icart->waitMotionDone();
+        getRightPalmWorldPosition(wHandY);
+        MatrixOperations::rotoTransfWorldRoot(wHandY, rHandY);
+        err[0] = fixPoint[0] - rHandY[0]; err[1] = fixPoint[1] - rHandY[1]; err[2] = fixPoint[2] - rHandY[2];
+        cout << "Error: "; printVector(err);
     }
 }
 
@@ -662,57 +673,8 @@ void My_ICub::getHeadCurrentVector(Vector &headAngles) {
     headAngles.resize(jnts);
     for (int i=0; i<jnts; i++) {
         headAngles[i] = angs[i];
-        printf("%f\n", headAngles[i]);
+
     }
-}
-
-void My_ICub::korwardKinArmMovement(My_ICub::Hand hand, Vector pose) {
-    getArmController(hand);
-    Vector palmPoseW, palmPoseR, difference(3);
-    const bool wait = true;
-    getRightPalmWorldPosition(palmPoseW);
-    MatrixOperations::rotoTransfWorldRoot(palmPoseW, palmPoseR);
-    cout << "Palm pose: "; printVector(palmPoseR);
-    cout << "Fix point: "; printVector(pose);
-    difference[0] = pose[0];// - palmPoseR[0]; // TODO
-    difference[1] = pose[1];// - palmPoseR[1];
-    difference[2] = pose[2];//wqWA - palmPoseR[2];
-    cout << "Difference: "; printVector(difference);
-    armMovement(difference, wait);
-    getRightPalmWorldPosition(palmPoseW);
-    MatrixOperations::rotoTransfWorldRoot(palmPoseW, palmPoseR);
-    cout << "Palm pose: "; printVector(palmPoseR);
-
-}
-
-void My_ICub::armMovement(Vector diff, bool wait) {
-    Property option;
-    option.put("device", "cartesiancontrollerclient");
-    option.put("remote", "/icubSim/cartesianController/right_arm");
-    option.put("local", "/client/right_arm");
-
-    PolyDriver clientCartCtrl(option);
-    ICartesianControl *icart = NULL;
-    if (clientCartCtrl.isValid()) {
-        clientCartCtrl.view(icart);
-    }
-
-    icart->getPose(x, o);
-
-    /*o[0] = 0.57735; o[1] = 0.57735; o[2] = -0.57735; o[3] = 2.094395;
-
-    cout << "X: "; printVector(x);
-    x[0] += diff[0];
-    x[1] += diff[1];
-    x[2] += diff[2];
-
-    icart->goToPose(x, o); */
-
-    icart->setTrajTime(.2);  // given in seconds
-    icart->goToPositionSync(diff);
-
-    if (wait) icart->waitMotionDone(10);
-
 }
 
 void My_ICub::printVector(Vector vec) {
