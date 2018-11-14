@@ -11,6 +11,7 @@ using namespace std;
 #include <yarp/dev/GazeControl.h>
 #include <yarp/dev/CartesianControl.h>
 #include <yarp/dev/IPositionControl.h>
+#include <yarp/dev/IControlLimits.h>
 using namespace yarp::dev;
 
 #include <yarp/sig/Image.h>
@@ -76,6 +77,7 @@ protected:
         PolyDriver *right_arm_driver;
         PolyDriver *left_arm_driver;
         RpcClient  *world_client;
+        IControlLimits *headLimit;
 
         IPositionControl *head_controller;
         IPositionControl *right_arm_controller;
@@ -98,7 +100,6 @@ protected:
         IGazeControl *iGaze;
         ICartesianControl *iCarCtrl;
 
-
         void getRobotGazeInteface();
         void getWorldRpcClient();
         //void putObjectToPosition(Vector worldVct);
@@ -108,6 +109,7 @@ protected:
         void setRightArmVector();
 
         Vector right_arm_vector;
+        Vector head_limit_vector;
         void setArmPosition(Hand hand, bool wait);
         void saveHandAngles();
         void saveRightHandAngles();
@@ -119,9 +121,13 @@ protected:
         void getCurrentFixPoint(Vector &vector);
         void randomHeadMotions(int direction, int steps, double minAng, double maxAngle);
         void getHeadCurrentVector(Vector &headAngles);
+        void getArmVector(Vector &armAngles);
         void invKinArmMovement(Hand hand, Vector pose);
         void armMovement(Vector diff, bool wait);
         void printVector(Vector vec);
+        bool checkHeadAngles(Vector headAngles);
+        void setEyesVergence(double max);
+
 };
 
 #endif
