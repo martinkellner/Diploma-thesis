@@ -34,8 +34,11 @@ int main(int argc, char* argv[]) {
     Network yarp;
     My_ICub *icub = new My_ICub();
 
-    //icub->collectingData(path, 100, icub->LOOK);
-    icub->test();
+    icub->randomLookWayCollecting(path, 0, 50);
+    //Vector w(4); w[0] = -0.121811519717529; w[1] = 0.727852684714889; w[2] = 0.307035784201394; w[3] =1;
+    //Vector r;
+    //MatrixOperations::rotoTransfWorldRoot(w,r); cout << r[0] << " " << r[1] << " " << r[2] << endl;
+    //icub->test();
     icub->closeDataFile();
 };
 

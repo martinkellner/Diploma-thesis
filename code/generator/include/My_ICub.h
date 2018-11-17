@@ -39,6 +39,9 @@ class My_ICub {
         //void prepareDatasetFile(string path, double const angle);
         void test();
 
+//void randomHandWatchCollecting(string path, int startFrom, int total, int imagesCount, bool armSeen);
+void randomLookWayCollecting(string path, int startFrom, int total);
+
 protected:
         string
             robot_name,
@@ -63,9 +66,7 @@ protected:
         void takeAndSaveImages(string path, string name);
         //void writeToDataFile(string str);
         double randomAngle(double minAngle, double maxAngle);
-        //void randomHandWatchCollecting(string path, int startFrom, int total, int imagesCount, bool armSeen);
-        //void randomLookWayCollecting(string path, int startFrom, int total);
-        //void randomRightArmPosition(bool wait);
+    //void randomRightArmPosition(bool wait);
         //void generateObjectOnPosition(Vector position);
 
         //void randomHeadPosition(Vector position, bool wait);
@@ -119,7 +120,7 @@ protected:
         //void myLookAtPosition(Vector worldVct);
         void setHeadAnglesAndMove(Vector pose);
         void getCurrentFixPoint(Vector &vector);
-        void randomHeadMotions(int direction, int steps, double minAng, double maxAngle);
+        bool randomHeadMotions(int direction, int steps, double minAng, double maxAngle, double maxError);
         void getHeadCurrentVector(Vector &headAngles);
         void getArmVector(Vector &armAngles);
         void invKinArmMovement(Hand hand, Vector pose);
@@ -127,6 +128,8 @@ protected:
         void printVector(Vector vec);
         bool checkHeadAngles(Vector headAngles);
         void setEyesVergence(double max);
+        bool checkNextPosition(Vector nextPosition);
+        string vectorDataToString(Vector vector);
 
 };
 

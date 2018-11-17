@@ -176,7 +176,7 @@ void My_ICub::getHeadController() {
             for (int i=0; i<jnts; ++i) {
                 double min, max;
                 headLimit->getLimits(i, &min, &max);
-                head_limit_vector[i] = min; head_limit_vector[i+1] = max;
+                head_limit_vector[2*i] = min; head_limit_vector[(2*i)+1] = max;
             }
         }
     };
@@ -328,6 +328,7 @@ void My_ICub::takeAndSaveImages(string path, string name) {
 
 int My_ICub::getDataFile(string path) {
     if (!datafile.is_open()) {
+        path = path[path.size()-1] == '/' ? path : path + '/';
         datafile.open(path + "dataset.txt");
         if (!datafile.is_open()) {
             return 0;
@@ -592,24 +593,23 @@ void My_ICub::setHeadAnglesAndMove(Vector pose) {
     }
 }
 
-/*void My_ICub::randomLookWayCollecting(string path, int startFrom, int total) {
-
-
+void My_ICub::randomLookWayCollecting(string path, int startFrom, int total) {
+    getHeadController();
     getRobotGazeInteface();
-    Vector fp; getCurrentFixPoint(fp);
-    Vector wH, rH;
-    getRightPalmWorldPosition(wH); MatrixOperations::rotoTransfWorldRoot(wH, rH);
+    getArmController(RIGHT);
+    getDataFile(path);
+    setEyesVergence(-.33);
+    const double maxError = 0.05;
+    double maxAngle = 10; double minAngle = 3;
+    int direction, steps;
+    bool doneCorrect = true;
+    for (int i=startFrom; i < total; i++) {
+        direction = doneCorrect ? (rand()%9) : (direction + 1 - (2*(direction%2)));
+        steps     = (rand()%10)+4;
+        bool doneCorrect = randomHeadMotions(direction, steps, minAngle, maxAngle, maxError);
+    }
 
-    cout << fp[0] << " " << fp[1] << " " << fp[2] << endl;
-    cout << rH[0] << " "<< rH[1] << " " << rH[2]<< endl;
-
-    Vector x, o;
-    cout << "este ok" << endl;
-    icart->getPose(x, o);
-    x[1] += -.18;
-    x[2] += .34;
-    icart->goToPose(x, o);
-}*/
+}
 
 
 void My_ICub::getCurrentFixPoint(Vector &vector) {
@@ -619,17 +619,10 @@ void My_ICub::getCurrentFixPoint(Vector &vector) {
 
 // Use for testing
 void My_ICub::test() {
-    getHeadController();
-    getRobotGazeInteface();
-    setEyesVergence(-0.45);
-    const int steps = 4;
-    const double min = 1; const double max = 10;
-
-    randomHeadMotions(5, steps, min, max);
 
 }
 
-void My_ICub::randomHeadMotions(int direction, int steps, double minAng, double maxAngle) {
+bool My_ICub::randomHeadMotions(int direction, int steps, double minAng, double maxAngle, double maxError) {
     Property option;
     option.put("device", "cartesiancontrollerclient");
     option.put("remote", "/icubSim/cartesianController/right_arm");
@@ -640,13 +633,14 @@ void My_ICub::randomHeadMotions(int direction, int steps, double minAng, double 
     if (clientCartCtrl.isValid()) {
         clientCartCtrl.view(icart);
     }
+    icart->setInTargetTol(0.0001);
     icart->setTrajTime(.2);  // given in seconds
 
     Vector headAngles; getHeadCurrentVector(headAngles);
 
     double xDir, xDiff, yDir, yDiff;
-    double directions[] = {0, 1, 1, 0, 1, 1, 0, -1, -1, 0, -1, -1, -1, 1, 1, -1};
-    xDir = directions[direction*2];
+    double directions[] = {0, 1, 0, -1, 1, 0, -1, 0, 1, 1, -1, -1, -1, 1, 1, -1}; xDir = directions[direction*2];
+    xDir = directions[(direction*2)];
     yDir = directions[(direction*2)+1];
     Vector fixPoint(3), headVector, armVector;
     Vector err(3); Vector wHandY, rHandY;
@@ -654,23 +648,31 @@ void My_ICub::randomHeadMotions(int direction, int steps, double minAng, double 
         xDiff = randomAngle(minAng, maxAngle)*xDir;
         yDiff = randomAngle(minAng, maxAngle)*yDir;
         headAngles[0] += xDiff; headAngles[2] += yDiff;
-        if (checkHeadAngles(headAngles)) {
-            break; // Break the cycle if a joint angle is out of range!
+        if (!checkHeadAngles(headAngles)) {
+            fprintf(stderr, "Return false because angles check!\n");
+            return false; // Break the cycle if a joint angle is out of range!
         }
         setHeadAnglesAndMove(headAngles);
         getCurrentFixPoint(fixPoint);
-        icart->goToPositionSync(fixPoint);
+        if (!checkNextPosition(fixPoint)) {
+            fprintf(stderr,"Return false because the next position check!\n");
+            return false; // Break the cycle if the fix point is unreachable!
+        }
+        icart->goToPosition(fixPoint);
         icart->waitMotionDone();
         getRightPalmWorldPosition(wHandY);
         MatrixOperations::rotoTransfWorldRoot(wHandY, rHandY);
-
-        cout << "--------------------------------------------------------" << endl;
-        cout << "Head angles: "; getHeadCurrentVector(headAngles); printVector(headAngles);
-        cout << "Right arm angles: "; getArmVector(armVector); printVector(armVector);
-        err[0] = fixPoint[0] - rHandY[0]; err[1] = fixPoint[1] - rHandY[1]; err[2] = fixPoint[2] - rHandY[2];
-        cout << "Error: "; printVector(err);
-        cout << "---------------------------------------------------------" << endl;
+        setRightArmVector();
+        for (int j = 0; j < 3; ++j) {
+            if (abs(fixPoint[j] - rHandY[j]) > maxError) {
+               fprintf(stderr, "Return false bucause error is bigger as limit!\n");
+               return false;
+            }
+        }
+        // print data to the file
+        datafile << vectorDataToString(headAngles) << vectorDataToString(armVector) << vectorDataToString(fixPoint) << vectorDataToString(rHandY) << '\n';
     }
+    return true;
 }
 
 void My_ICub::getHeadCurrentVector(Vector &headAngles) {
@@ -706,8 +708,8 @@ void My_ICub::printVector(Vector vec) {
 
 bool My_ICub::checkHeadAngles(Vector headAngles) {
     // check if 0., 2., 5. angle is out of the range
-    // TODO: check vertage joint limits
-    return head_limit_vector[0] < headAngles[0] && headAngles[0] < head_limit_vector[1] && head_limit_vector[5] < headAngles[2] && headAngles[2] < head_limit_vector[6];
+    // TODO: check vertage joint limitsbecause
+    return head_limit_vector[0] < headAngles[0] && headAngles[0] < head_limit_vector[1] && head_limit_vector[4] < headAngles[2] && headAngles[2] < head_limit_vector[5];
 }
 
 void My_ICub::setEyesVergence(double max) {
@@ -726,5 +728,25 @@ void My_ICub::setEyesVergence(double max) {
         printVector(fixPoint);
     }
 }
+// Return -1 if the next position is achievable else a indetificator of the recommended direction
+bool My_ICub::checkNextPosition(Vector nextPosition) {
+    // x-max: -0.331117, min: 0.0
+    // y-max: -0.0446907, min: 0.432886
+    // z-max: , min: -0.139957, max: 0.383425
+    printVector(nextPosition);
+    bool xOk = -0.05 > nextPosition[0] && nextPosition[0] > -.33;
+    bool yOk = -.04 < nextPosition[1] && nextPosition[1] < 0.43;
+    bool zOk = -.13 < nextPosition[2] && nextPosition[2] < .38;
+
+    return  xOk && yOk && zOk;
 
 
+}
+
+string My_ICub::vectorDataToString(Vector vector) {
+    string res = "";
+    for (int i=0; i<vector.size(); i++) {
+        res += to_string(vector[i]) + " ";
+    }
+    return res;
+}
