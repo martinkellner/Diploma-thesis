@@ -15,6 +15,7 @@ using namespace yarp::dev;
 #include "matrix_operations.h"
 
 int main(int argc, char* argv[]) {
+    //system("../start.sh");
     string path;
     if (argc > 0) {
         path = argv[1];
@@ -34,12 +35,13 @@ int main(int argc, char* argv[]) {
     Network yarp;
     My_ICub *icub = new My_ICub();
 
-    icub->randomLookWayCollecting(path, 0, 50);
+    icub->randomLookWayCollecting(path, 0, 200);
     //Vector w(4); w[0] = -0.121811519717529; w[1] = 0.727852684714889; w[2] = 0.307035784201394; w[3] =1;
     //Vector r;
     //MatrixOperations::rotoTransfWorldRoot(w,r); cout << r[0] << " " << r[1] << " " << r[2] << endl;
     //icub->test();
     icub->closeDataFile();
+    system("../kill.sh"); // run the shell script that kills all processes that needed!
 };
 
 

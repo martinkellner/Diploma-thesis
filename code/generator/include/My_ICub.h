@@ -120,16 +120,17 @@ protected:
         //void myLookAtPosition(Vector worldVct);
         void setHeadAnglesAndMove(Vector pose);
         void getCurrentFixPoint(Vector &vector);
-        bool randomHeadMotions(int direction, int steps, double minAng, double maxAngle, double maxError);
+        int randomHeadMotions(int direction, int steps, double minAng, double maxAngle, double maxError);
         void getHeadCurrentVector(Vector &headAngles);
         void getArmVector(Vector &armAngles);
         void invKinArmMovement(Hand hand, Vector pose);
         void armMovement(Vector diff, bool wait);
         void printVector(Vector vec);
         bool checkHeadAngles(Vector headAngles);
-        void setEyesVergence(double max);
-        bool checkNextPosition(Vector nextPosition);
+        //bool checkNextPosition(Vector nextPosition);
         string vectorDataToString(Vector vector);
+        int checkError(Vector error, const double maxErr);
+        void setRandomVergenceAngle();
 
 };
 
