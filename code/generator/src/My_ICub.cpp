@@ -310,6 +310,7 @@ ImageOf<PixelRgb> *My_ICub::getRobotLeftEyeImage() {
 int My_ICub::getRightArmJoints() {
     int joints;
     right_arm_controller->getAxes(&joints);
+    printf("JOINTS: %d\n", joints);
     return joints;
 };
 
@@ -463,13 +464,14 @@ void My_ICub::getRightPalmWorldPosition(Vector &vector) {
 void My_ICub::setRightArmVector() {
     getArmController(RIGHT);
     int jnts = getRightArmJoints();
-    right_arm_vector.resize(jnts);
+    right_arm_vector = Vector(jnts);
     double refs;
 
     for (int i=0; i < jnts; i++) {
         right_arm_controller->getTargetPosition(i, &refs);
         right_arm_vector[i] = refs;
     }
+    cout << "RIGHT ARM VECTOR: "; printVector(right_arm_vector);
 }
 
 void My_ICub::saveHandAngles() {
@@ -599,14 +601,15 @@ void My_ICub::randomLookWayCollecting(string path, int startFrom, int total) {
     getArmController(RIGHT);
     getDataFile(path);
     setRandomVergenceAngle();
-    const double maxError = 0.42;
+    const double maxError = 0.03;
     double maxAngle = 15;
     double minAngle = 3;
     int direction, steps;
     int doneCorrect = -1;
     for (int i = startFrom; i < total; i++) {
         if (i%10 == 0) setRandomVergenceAngle();
-        direction = (doneCorrect == -1 || doneCorrect == 10) ? (rand() % 9) : doneCorrect;
+        direction = (doneCorrect == -1 || doneCorrect == 10 || doneCorrect == 9 || doneCorrect == 8) ? (rand() % 9) : doneCorrect;
+        if (doneCorrect != -1) i--;
         steps = (rand() % 10) + 4;
         doneCorrect = randomHeadMotions(direction, steps, minAngle, maxAngle, maxError);
     }
@@ -620,11 +623,41 @@ void My_ICub::getCurrentFixPoint(Vector &vector) {
 // Use for testing
 void My_ICub::test() {
     getHeadController();
-    Vector head;
-    getHeadCurrentVector(head);
-    head[0] = 10; head[2] = 10;
-    head_controller->positionMove(0, head[0]);
-    head_controller->positionMove(2, head[2]);
+    setRandomVergenceAngle();
+    getArmController(RIGHT);
+    getRobotGazeInteface();
+
+    Vector crrFixPoint;
+    getCurrentFixPoint(crrFixPoint);
+
+    Property option;
+    option.put("device", "cartesiancontrollerclient");
+    option.put("remote", "/icubSim/cartesianController/right_arm");
+    option.put("local", "/client/right_arm");
+
+    PolyDriver clientCartCtrl(option);
+    ICartesianControl *icart = NULL;
+    if (clientCartCtrl.isValid()) {
+        clientCartCtrl.view(icart);
+    }
+
+    setRightArmVector();
+    printVector(right_arm_vector);
+
+    icart->setTrajTime(.1);
+    Vector xd, od, jnd;
+    icart->askForPosition(crrFixPoint, xd, od, jnd);
+
+    for (int i=3; i<jnd.size(); i++) {
+        right_arm_controller->positionMove(i-3, jnd[i]);
+    }
+    //icart->goToPosition(crrFixPoint);
+    //icart->waitMotionDone();
+
+
+
+
+
 }
 
 int My_ICub::randomHeadMotions(int direction, int steps, double minAng, double maxAngle, double maxError) {
@@ -638,8 +671,8 @@ int My_ICub::randomHeadMotions(int direction, int steps, double minAng, double m
     if (clientCartCtrl.isValid()) {
         clientCartCtrl.view(icart);
     }
-    icart->setInTargetTol(0.001);
-    icart->setTrajTime(.2);  // given in seconds
+    icart->setInTargetTol(0.0001);
+    icart->setTrajTime(.1);  // given in seconds
 
     Vector headAngles; getHeadCurrentVector(headAngles);
 
@@ -664,12 +697,23 @@ int My_ICub::randomHeadMotions(int direction, int steps, double minAng, double m
             fprintf(stderr,"Return false because the next position check!\n");
             return false; // Break the cycle if the fix point is unreachable!
         }*/
-        icart->goToPosition(fixPoint);
-        icart->waitMotionDone();
+        Vector xd, od, jointD;
+        icart->askForPosition(fixPoint, xd, od, jointD);
+        cout << "XD: "; printVector(xd);
+        cout << "OD: "; printVector(od);
+        cout << "Joints: "; printVector(jointD);
+        /*right_arm_controller->positionMove(jointD.data());
+        bool is_done = false;
+        while (!is_done) {
+            right_arm_controller->checkMotionDone(&is_done);
+            usleep(4);
+        }*/
+        //icart->goToPosition(t);
+        //icart->waitMotionDone();
         getRightPalmWorldPosition(wHandY);
-        MatrixOperations::rotoTransfWorldRoot(wHandY, rHandY);
-        setRightArmVector();
 
+        MatrixOperations::rotoTransfWorldRoot(wHandY, rHandY);
+        //setRightArmVector();
         for (int j = 0; j < 3; ++j) {
             error[j] = fixPoint[j] - rHandY[j];
         }
@@ -677,10 +721,12 @@ int My_ICub::randomHeadMotions(int direction, int steps, double minAng, double m
         if ((errChck = checkError(error, maxError)) != -1) {
             fprintf(stderr, "Return error code (bigger than -1) if  error is bigger as limit! (%d recommeded direction)\n", errChck);
             return errChck;
+        } else {
+            datafile << vectorDataToString(headAngles) << vectorDataToString(right_arm_vector) << vectorDataToString(fixPoint) << vectorDataToString(rHandY) << vectorDataToString(error) << '\n';
+            datafile.flush();
         }
         // print data to the file
-        datafile << vectorDataToString(headAngles) << vectorDataToString(armVector) << vectorDataToString(fixPoint) << vectorDataToString(rHandY) << vectorDataToString(error) << '\n';
-        cout << vectorDataToString(headAngles) << vectorDataToString(armVector) << vectorDataToString(fixPoint) << vectorDataToString(rHandY) << vectorDataToString(error) <<  endl;
+        cout << vectorDataToString(headAngles) << vectorDataToString(right_arm_vector) << vectorDataToString(fixPoint) << vectorDataToString(rHandY) << vectorDataToString(error) <<  endl;
     }
     return -1;
 }
