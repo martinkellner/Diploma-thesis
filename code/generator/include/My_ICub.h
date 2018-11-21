@@ -62,14 +62,7 @@ protected:
 
         ofstream datafile;
         int getDataFile(string path);
-        //void setHeadPosition(Vector position, bool wait);
-        void takeAndSaveImages(string path, string name);
-        //void writeToDataFile(string str);
         double randomAngle(double minAngle, double maxAngle);
-    //void randomRightArmPosition(bool wait);
-        //void generateObjectOnPosition(Vector position);
-
-        //void randomHeadPosition(Vector position, bool wait);
 
         ImageOf<PixelRgb> *getRobotRightEyeImage();
         ImageOf<PixelRgb> *getRobotLeftEyeImage();
@@ -89,7 +82,6 @@ protected:
 
         void getHeadController();
         void getArmController(Hand hand);
-        void getCartesianController(Hand hand);
 
         PolyDriver *getRobotHeadDriver();
         PolyDriver *getRobotArmDriver(Hand hand);
@@ -103,35 +95,24 @@ protected:
 
         void getRobotGazeInteface();
         void getWorldRpcClient();
-        //void putObjectToPosition(Vector worldVct);
         void getRightPalmWorldPosition(Vector &vector);
-        //void deleteAllObject();
-        //void setArmToDefaultPosition(Hand hand);
         void setRightArmVector();
 
         Vector right_arm_vector;
         Vector head_limit_vector;
-        void setArmPosition(Hand hand, bool wait);
-        void saveHandAngles();
-        void saveRightHandAngles();
-        void saveObjectPosition(Vector objPose);
-        void estimateHeadAnglesToReachAPose(Vector difference, Vector &estimation);
-        //void lookAtPositionUsingIGaze(Vector worldVct);
-        //void myLookAtPosition(Vector worldVct);
         void setHeadAnglesAndMove(Vector pose);
         void getCurrentFixPoint(Vector &vector);
         int randomHeadMotions(int direction, int steps, double minAng, double maxAngle, double maxError);
         void getHeadCurrentVector(Vector &headAngles);
-        void getArmVector(Vector &armAngles);
         void invKinArmMovement(Hand hand, Vector pose);
         void armMovement(Vector diff, bool wait);
         void printVector(Vector vec);
         bool checkHeadAngles(Vector headAngles);
-        //bool checkNextPosition(Vector nextPosition);
         string vectorDataToString(Vector vector);
         int checkError(Vector error, const double maxErr);
         void setRandomVergenceAngle();
-
+        void getArmJoints(Vector &armJoints);
+        void setArmJoints(Hand hand, Vector joints);
 };
 
 #endif
