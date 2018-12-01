@@ -21,6 +21,7 @@ Sensory processing in the brain entails multisensory integration (combining cues
 5. <a href="http://www.deeplearningbook.org/"> Ian Goodfellow, Yoshua Bengio, Aaron Courville (2016). Deep Learning.
 MIT Press, pp. 654-720, 587-589 </a>
 6. <a href="http://www.kyb.tuebingen.mpg.de/fileadmin/user_upload/files/publications/pdfs/pdf2507.pdf"> Marc O. Ernst and Heinrich H. Bulthoff. Merging the senses into a robust percept</a>
+7. J. F. Soechtin and M. Flanders. Moving in three-dimensional space: Frame of reference, vectors, and coordinate system.
 
 *(All free PDF articles can be found on [https://github.com/martinkellner/Diploma-thesis/tree/master/notes/pdf](https://github.com/martinkellner/Diploma-thesis/tree/master/notes/pdf))*
 
