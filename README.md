@@ -22,6 +22,9 @@ Sensory processing in the brain entails multisensory integration (combining cues
 MIT Press, pp. 654-720, 587-589 </a>
 6. <a href="http://www.kyb.tuebingen.mpg.de/fileadmin/user_upload/files/publications/pdfs/pdf2507.pdf"> Marc O. Ernst and Heinrich H. Bulthoff. Merging the senses into a robust percept</a>
 7. J. F. Soechtin and M. Flanders. Moving in three-dimensional space: Frame of reference, vectors, and coordinate system.
+8. Enhanced Robotic Hand-eye Coordination inspired from Human-like Behavioral Patterns. Fei Chao, Member, IEEE, Zuyuan Zhu, Chih-Min Lin, Fellow, IEEE, Huosheng Hu, Senior Member, IEEE, Longzhi Yang, Member, IEEE, Changjing Shang, and Changle Zhou
+9. Spatial Transformations for Eye–Hand Coordination. G. Blohm, A. Z. Khan, and J. D. Crawford, York
+University, Toronto, ON, Canada
 
 *(All free PDF articles can be found on [https://github.com/martinkellner/Diploma-thesis/tree/master/notes/pdf](https://github.com/martinkellner/Diploma-thesis/tree/master/notes/pdf))*
 
