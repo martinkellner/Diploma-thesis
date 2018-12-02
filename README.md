@@ -3,7 +3,7 @@
 **Supervisor:** prof. Ing. Igor Farkaš, Dr. <br>
 **Department:** Department of Applied Informatics - FMPH, Comenius University in Bratislava <br>
 **Diploma thesis** *(Current Version)* **:** [link to pdf](https://github.com/martinkellner/master-thesis/blob/master/thesis/diploma.pdf) <br>
-**Github repository:** [https://github.com/martinkellner/Diploma-thesis](https://github.com/martinkellner/master-thesis)
+**Github repository:** [https://github.com/martinkellner/master-thesis](https://github.com/martinkellner/master-thesis)
 
 ## Annotation
 Sensory processing in the brain entails multisensory integration (combining cues into a single common underlying stimulus) and coordinate transformations (the change of reference frame for a stimulus, e.g. retinotopic to body-centered, effected through knowledge about an intervening variable, e.g. gaze position). This ability is crucial in cognitive robotics in order to endow robots with an ability to operate autonomously in the 3D space.
@@ -26,7 +26,7 @@ MIT Press, pp. 654-720, 587-589 </a>
 9. Spatial Transformations for Eye–Hand Coordination. G. Blohm, A. Z. Khan, and J. D. Crawford, York
 University, Toronto, ON, Canada
 
-*(All free PDF articles can be found on [https://github.com/martinkellner/master-thesis/tree/master/notes/pdf](https://github.com/martinkellner/Diploma-thesis/tree/master/notes/pdf))*
+*(All free PDF articles can be found on [https://github.com/martinkellner/master-thesis/tree/master/notes/pdf](https://github.com/martinkellner/master-thesis/tree/master/notes/pdf))*
 
 ## Progress
 
