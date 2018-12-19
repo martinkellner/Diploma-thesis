@@ -14,19 +14,25 @@ Sensory processing in the brain entails multisensory integration (combining cues
 3. Evaluate and analyze the behavior of the trained model.
 
 ## Bibliography
-1. <a href="http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003035">Makin J., Fellows M., & Sabes P. (2013). Learning multisensory integration and coordinate transformation via density estimation. PLOS: Comput. Biol., 9(4).</a>
-2. <a href="http://cogsci.fmph.uniba.sk/~farkas/Papers/svec-farkas.cogsci14.pdf">Švec M., Farkaš I. (2014). Calculation of object position in various reference frames with a robotic simulator. In Proceedings of the 36th Annual Conference of the Cognitive Science Society, Quebec, Canada.</a>
-3. <a href="http://alis.uniba.sk/storage/ddp/dostupne/FM/2013/2013-FM-43608/56780v1.pdf">Švec M., Farkaš I. (2014). Representation of object position in various frames of reference using a robotic simulator</a>
-4. Tikhanoff V., Fitzpatrick P., Nori F., Natale L., Metta G., & Cangelosi A. (2008). The iCub humanoid robot simulator. Advanced Robotics, 1(1), 22-26.
-5. <a href="http://www.deeplearningbook.org/"> Ian Goodfellow, Yoshua Bengio, Aaron Courville (2016). Deep Learning.
-MIT Press, pp. 654-720, 587-589 </a>
-6. <a href="http://www.kyb.tuebingen.mpg.de/fileadmin/user_upload/files/publications/pdfs/pdf2507.pdf"> Marc O. Ernst and Heinrich H. Bulthoff. Merging the senses into a robust percept</a>
-7. J. F. Soechtin and M. Flanders. Moving in three-dimensional space: Frame of reference, vectors, and coordinate system.
-8. Enhanced Robotic Hand-eye Coordination inspired from Human-like Behavioral Patterns. Fei Chao, Member, IEEE, Zuyuan Zhu, Chih-Min Lin, Fellow, IEEE, Huosheng Hu, Senior Member, IEEE, Longzhi Yang, Member, IEEE, Changjing Shang, and Changle Zhou
-9. Spatial Transformations for Eye–Hand Coordination. G. Blohm, A. Z. Khan, and J. D. Crawford, York
-University, Toronto, ON, Canada
-
-*(All free PDF articles can be found on [https://github.com/martinkellner/master-thesis/tree/master/notes/pdf](https://github.com/martinkellner/master-thesis/tree/master/notes/pdf))*
+1. ANDERSEN, Ra and MOUNTCASTLE, Vb. The influence of the angle of gazeupon the excitability of the light- sensitive neurons of the posterior parietal cor-tex. The Journal of Neuroscience. January 1983. Vol. 3, no. 3p. 532–548. DOI10.1523/jneurosci.03-03-00532.1983. 
+2. BATISTA, Aaron. Inner space: Reference frames. Current Biology. 2002. Vol. 12,no. 11., doi:10.1016/s0960-9822(02)00878-3.
+3. BLOHM, Gunnar and CRAWFORD, J. Douglas. Fields of Gain in the Brain. Neu-ron. 2009. Vol. 64, no. 5p. 598–600. DOI 10.1016/j.neuron.2009.11.022.
+4. COLBY, Carol L. Action-Oriented Spatial Reference Frames in Cortex. Neuron.1998. Vol. 20, no. 1p. 15–24. DOI 10.1016/s0896-6273(00)80429-8. 
+5. COMMITTERI, G., et al. Reference Frames for Spatial Cognition: Different BrainAreas are Involved in Viewer-, Object-, and Landmark- Centered Judgments AboutObject Location. Journal of cognitive neuroscience. November 2004. Vol. 16, p.1517–1535. DOI 10.1162/0898929042568550.
+6. CRAWFORD,  J.  D.,  et  al.  Spatial  Transformations  for  Eye–Hand  Coor-dination.  Journal  of  Neurophysiology,  vol.  92,  no.  1,  2004,  pp.  10–19.,doi:10.1152/jn.00117.2004.
+7. FINK, G. Space-based and object-based visual attention:  shared and spe-cific neural domains. Brain. January 1997. Vol. 120, no. 11p. 2013–2028. DOI10.1093/brain/120.11.2013.
+8. FINK, G. R., MARSHALL, J. C., SHAH, N. J., WEISS, P. H., HALLIGAN, P.W., GROSSE-RUYKEN, M., ZIEMONS, K., ZILLES, K. and FREUND, H.-J. Linebisection judgments implicate right parietal cortex and cerebellum as assessed byfMRI. Neurology. 2000. Vol. 54, no. 6p. 1324–1331. DOI 10.1212/wnl.54.6.1324. 
+9. GALATI, Gaspare, PELLE, Gina, BERTHOZ, Alain and COMMITTERI, Gior-gia. Multiple reference frames used by the human brain for spatial perceptionand memory. Experimental Brain Research. 2010. Vol. 206, no. 2p. 109–120. DOI10.1007/s00221-010-2168-8. 
+10. GALATI, Gaspare, LOBEL, Elie, VALLAR, Giuseppe, BERTHOZ, Alain, PIZZA-MIGLIO, Luigi and BIHAN, Denis Le. The neural basis of egocentric and allocentriccoding of space in humans: a functional magnetic resonance study. ExperimentalBrain Research. May 2000. Vol. 133, no. 2p. 156–164. DOI 10.1007/s002210000375.13
+14
+11. HONDA, M. Cortical areas with enhanced activation during object-centred spatialinformation processing. A PET study. Brain. January 1998. Vol. 121, no. 11p.2145–2158. DOI 10.1093/brain/121.11.2145.
+12. HAGLER, D. J. Jr., RIECKE, L., and SERONO, M. I. Parietal and superiorfrontal visuospatial maps activated by pointing and saccades. Neuroimage. 2007May 1; 35(4): 1562–1577. DOI 10.1016/j.neuroimage.2007.01.033
+13. KUMAR, Arvind and BARVE, Shrish. Newtonian Relativity. In : How and whyin basic mechanics. Hyderabad : Universities Press, 2002. p. 114–117.
+14. SALINAS, Emilio and SEJNOWSKI, Terrence J. Book Review:  Gain Modu-lation in the Central Nervous System:  Where Behavior, Neurophysiology, andComputation Meet. The Neuroscientist. 2001. Vol. 7, no. 5p. 430–440. DOI10.1177/107385840100700512.
+15. SOECHTING, J. and FLANDERS, M. Moving In Three-Dimensional Space:Frames  Of  Reference,  Vectors,  And  Coordinate  Systems.  Annual  Reviewof Neuroscience. January 1992. Vol. 15,  no. 1p. 167–191. DOI 10.1146/an-nurev.neuro.15.1.167.
+16. SERENO, Martin I and HUANG, Ruey-Song. Multisensory maps in pari-etal cortex. Current Opinion in Neurobiology. 2014. Vol. 24, p. 39–46. DOI10.1016/j.conb.2013.08.014.
+17. XING, Jing and ANDERSEN, Richard A. Memory Activity of LIP Neurons forSequential Eye Movements Simulated With Neural Networks. Journal of Neuro-physiology. 2000. Vol. 84, no. 2p. 651–665. DOI 10.1152/jn.2000.84.2.651.
+18. ZIPSER, David and ANDERSEN, Richard A. A back-propagation programmednetwork that simulates response properties of a subset of posterior parietal neurons.Nature. 1988. Vol. 331, no. 6158p. 679–684. DOI 10.1038/331679a0.
 
 ## Progress
 
