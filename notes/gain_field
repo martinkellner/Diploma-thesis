@@ -1,0 +1,59 @@
+prepojenie s coordinate transfomarion
+
+--  Zipser and Andersen (1988), ktorych sme uz prvy ukazali potencial gain modulation.
+-- ta siet ktoru natrenovali mala na vstupe gaze signal a retinal location a output ktory bol stimul location in body-centered. 
+-- vsetky tieto representacie vstup boli nasjkot namerane na mozgu ako response nuronov a takze sa siet presne naucila to co je na obraku ... (DAJ SI POZNAMKU NA PREPIS POPISU)
+-- Kedze siet bola trenovana cez back-prop, tak boli nastavoane vlastnotu jednotiek v sktytch vrstcach.
+-- po natrenovani boli analyzov tychto jednotiek zistene ze gain field ktore su zaviale od gaze tak ako to je v partieral cortex
+-- co je back-prop a co hidden units, daj obrazok network 
+-- toto vsetko predpoveda ze na riesenie coordinate transfomarion mozu byt gain field velmi uzitocne
+
+- Xing a Andersen rozsirili ich pristup na ine transformacie, napriklad lokalizovanie auditory stimuli
+a tiez inu siet kde okrem coordinate transfomation ale aj na dosiahnutie nejake tynamiky, kedze ucili model representovat sacccades. 
+
+- po tom co to natrenovali, ukazali ze nielen ze gain fieldy boli vybudovane ale tiez ze sa zhoduju odpovede memory a sensory s tymi co boli namerane v LIP neurons (boli s rovnakym vzorom). Pozoruhodne je aj ze connectivite pattern su cosistente s Salinas and Abbort (1996) v ktorych gain modulation je vyslednok nelinearnej interakcie medzi rekuretne prepojenymi jednotakmi mozno dat aj obrazok rekurentnej
+- a trochu povedz co je rekuretka
+- tieto studie davaju taky tuk ze gain modulation a working memory mozu spolu suvisiet cez niektore mechanizmu na urovni corical micro obvodov
+
+-  Such persistent activity is consistent with the idea that parietal areas also serve to maintain internal representations of the locations of various body parts relative to the world and to each other (Wolpert and others 1998).
+
+Teoreticke co je:
+
+  - Salinas and Abbott (1995) tiez studovali vztahy mezdi coo a gain
+  - Jak je na obrazku Figure2
+    - uvazovanie populaciu neuronov v patieralnej kore ktore odpovedaju na vizualny stimul at retilan location x_target a su gain-modulated gaze alglom x_gaze. potom tieto riadi acez synapticke prepojenia inu populaciu downstram neuronov ktora je zahrnuta v procese generaovanie pohybu pre ruku na dosiahnutoe 
+    - na dosiahnutie targer musi nejaka kombinacia targeru a gaze uhla, tak tieto neurony by mali kodovat target v body-cent reference frame, teda musia odpovedat ako funkcia x_target + x_gaze
+    - otazka je pod akymi podmienkami je toto nastane
+    - nato najskor vyvynuli matematicku formulaciu; nasli podmientky a potvrdili vysledkom cez simulacie
+    - najskor nasli matematicke obmezdenia na synaptickych prepojeniach, splnenei ptychto podmienok garantuje ze downstram neurons budu explicitne kodona sumu x_target + x_gaze. to je ilustorvane v FIGURE 3. Tu model netweok s 4 neuronmi modulovanych gainom, ktore riadia downstram neurons. odpoved tych down je funkcia x_target sa meni ked x-gaze sa meni, presne jak sa ocakava od neuronu ktoreho odpoved je funckiou x-target + x_gaze, toto je sice extremne zjednodisene ale ukazuje to jak transformovane response mozu vzrast od gain-modulated ones. 
+    - . Similar shifts, associated with a variety of coordinate transformations, have been documented in several cortical areas (Jay and Sparks 1984; Graziano and others 1994; Stricanne and others 1996). One of the best demonstrations comes from the work of Graziano and others (1997) in the premotor cortex, where some cells have visual receptive fields anchored to the head. Their responses are invariant to eye position and depend on the location of a stimulus relative to the head (see also Duhamel and others 1997)
+
+################################################################################################3
+dokoncit gain field link to coordinate 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

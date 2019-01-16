@@ -1,0 +1,76 @@
+Nove poznamky pre vylepsenie coordinate transformation section:
+
+    % 
+        Toto mozno este na vylespenie predkapitoli
+    %%
+
+    - eye-hand cooridnate fransormation zahrna the synergistic function of several
+    sensorimotor systems, including the visual system, vestibular system, proprioception, and the eye,  head, and arm control systems, plus aspects of cognition-like attention and memory.
+
+    - In the end though, the purpose of the eye– hand coordination “system” is straightforward: the use of vision to guide movements of the hand (reaching, grasping, and manipulation).
+
+    
+    - Specifically, we will consider how the brain deals with the geometric problems of transforming a      stimulus coded at the level of the retina into a motor code useful for controlling reaching and     grasping motions
+
+    %%%
+    
+    
+    
+    - robot kontrol system ne oproti human zjednoduseny o ze nema zvycajne visual feedback
+    - specialne na riadenie do nejakeho bodu ked vizualny signal error je redukovany na zero 
+    - to funguje pretoze roboticky senzoricky feedback je obmedzeny len rychlostou ele. prudu a processor time
+    - u primatov to je zlozitejsie protoze kvoli rychlosti neural conduction a processing time, rychly pohyb oci alebo ruky moze byt dokonceny alebo way off track skor ako bude updatnuty novym vizualnym signalom, tak coor system musi spoliehat na tento pomaly feedback a robit velmi pomale pohyby alebo musi robit nieco ine: pouzit intenu model physikalneho systemu a extreneho sveta, zalozeneho na pociatocnych sensorickych podmienkach, ktory moze pracovat ciastocne nezavisle. 
+    - To sice nechce povedat ze visualnu feedback nie je pozuzivany, ten je samozrejme pozuzivany: odhalovanie neocakavych udalost alebo nebezpecenskva, takisto je tu evidencia ze PPC pomaha incorporate cisual feedbackdo on-going arm movement (Desmurget et al. 1999; Pisellaet al. 2000), a well-practiced movements vyzaduju feedback pre  optimalne performance (Proteau and Carnahan
+2001)
+    - napriek tomu sa je feedforward transformation je are essential for
+the basic aspects of common, overlearned behaviors (Ariff et al. 2002; Flanagan et al. 2001, 2003), allowing intermittent visual fixations to accurately guide a rapid, continuous sequence of coordinated eye and arm movements.
+
+    - at is attained in these feedforward internal models. Even with the use of such feedforward internal models, the internal structure of the brain is massively recursive.
+
+    - To save time the brain presumably implements sequential computations using the shortest possi-
+ble paths. Coupled with this, the primate brain appears to be organized into certain modular computational units (e.g.,Andersen and Buneo 2002; Wise et al. 1997).
+
+
+    %%%%
+    
+    %
+        EARLY VISUAL REPRESENTATIONS FOR ARM MOVEMENT    
+    %%%%
+        
+        1. ze ako to je s rf u eye-hand
+        2. preco je dolezite mat ulozenu representacoi, taku co je nezavisla od pohybu oci alebo co sa updatuje interne, namiesto toho len mat mat zalislost na feedback.
+
+        Gaze-centered representations and spatial updating:
+           
+        1. ze mozno je pouazivane aj allo aj ego rf na representaciu podla toho naco to treba
+        2. Henriques et al. (1998) experiment, opis, obrazok
+        3. spomenute dalsie studie
+        4. PPC u opic: studie o remappovani pre ruke a eyes, 
+        
+
+        Representing reach targets in 3-D space:
+        1. uvod ako sa merguju vlasne z dvoch ocu info
+        2. este nejaky uvod
+        3. nieco o eye-centered
+        4. neviem co to :D 
+
+        %
+        DEVELOPING THE REACH PLAN
+        %% 
+        
+        Using gaze-centered signals to guide reach:
+
+        1. ze sa najskor predpokladalo ze visal target bol transfromovany do body-centered a potom porovnany s rukov, potom niekdo nasiel signaly co mozu mat nieco s tym ze sa to porovnana ako gaze-centered
+        2. nejaka ulaha o vecktorovom posune a ze by mohlo stacit gaze
+        3. tu neviem precitaj este nieco /// nejaky experiment aj obrazok
+        
+        Accounting for eye– head–shoulder linkage geometry:
+
+        1. preco musi mozogodhadnut ako je visual ego-centr translocated (in shoulder) cez head rotation, ked sa hybe hlava tak aj oci
+        2. zase nejaky experiment o tom hand-eye centred
+         
+        Conceptual and physiological models for visually guided reach:
+        
+        1. dokoncit a napisat uz nieco
+
+

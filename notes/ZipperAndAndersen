@@ -1,0 +1,30 @@
+
+
+-zaoberaju sa ako sa sensoricke vstupy transformuju do motor outpus, tada coor trans.
+-boli prvy kto prisiel s tym
+
+-- ze ludia s leziami sice vidia ale maju problem intergrovat poziciu ich tela s visualnym vstupo
+-- anatomicky a physiologicky experimenty in macaque monkedye indikuje ze the interior parieral lobule constains visual a eye-position neurons, 7b area obsahuje somatosensory and reach-related cells; area MST obsahuje sial motion and smooth ursuit eye movements asctivity a area LIP contains visual visual and saccade-releated atiity 
+
+-- velmi vela buniek s tychto regionov - sa naslo a convergence of both eye-posion and retinal signals
+-- a to vo forme nejakej non-lineaneji interakcie, vo viacerych pripadoch visualny response moze byt modifikovany ako nejaky gain co je funkcia pozicii oci nasobena by the repsonse profile of the retinal receptive field. Preto receptivne fieldy ostavaju rovnake teda retinotopic ale magnituda response je modulovana poziciou oci. 
+
+-- tato modulacia ukazuje ze produkuje a tuning for the location of targets in head-centered coordninates co je ze zavisle na pozicii oci (dovtedy to tak asi bolo)
+
+- neboli najdene ziadne bunky ktore by kodovali location vez eye-position-independent coding, toto moze byt ziskane len ako pattern nejakej populacie neuronov
+
+- potom od dalsieho ze preco backprop
+
+Experimen ... res .. 7a
+
+-- nieco o tom ako 7a obsahuje tri skupiny buniek, ktore 
+-- experiment, nieco s 7a
+-- vysledky z experimentov aj nejake obrazky
+
+MODEL:
+
+    - opis vstupu, co a jak celkom fajn
+
+EVALUATION:
+    
+    

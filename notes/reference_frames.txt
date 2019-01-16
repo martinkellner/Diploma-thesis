@@ -1,0 +1,58 @@
+my notes about reference frame
+
+Article: Moving in three-space world
+
+Question is how is sensory information used to control a movement?
+We need determine how information is encoded by the population of neurons.
+
+Definition of reference of frame:
+
+Consider two men, the first one is a passenger in a moving train and another one is standing at the train station watching first one. We can say that the passenger is fixed to the train and second is fixed to the station (or to the earth). Just imagine a situation in which the passenger makes a book fall down vertically. In the train's reference of frame can be the event descriped as direct fall of the book, however, from the perspective of the observer fixed to the earth the book will drop along a curved path. 
+
+
+Above-mentioned example was demonstrated that event's description depends on the reference of frame that was adopted %symonyous. 
+
+Another good question is how to identify a neuronal population that encodes sensory infomation in a specified reference of frame. Just consider a neuron that encodes the location of an object in a recinocentric reference frame. If the object's image falls on the same locus on the retina, then the neuron activity should be constant, regardless to the position of the eye.       
+
+When we have defined a reference of frame, we can use a vector to determine the location of any point. In order to use a vector for the definition of the location of a point, there is nessesary defined an orogin of the reference of frame. Once we have denined the origin of a reference of frame we are able to define the position of any point as some distance the point from the origin.
+
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Vocubalary:
+	attempt - pokusit sa
+	common  - spolocny, obycajny
+	
+
+

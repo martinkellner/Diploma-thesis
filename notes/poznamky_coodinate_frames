@@ -1,0 +1,104 @@
+
+\begin{comment}
+
+odkial to mas Crawford 
+nevyhnutne pouzivat ruky, nejaka omacka priklad
+vyzaduje sa information o pozicii objektu ktora je relativna ku nasmu telu
+smer a vzdialenost
+kedze je amr pripevnena ku shoulder tak informacia ktora je reprezentovana v ref frame finutom na tom bode shoulder-centred
+### kodovanie visual
+Zapracuj tu 
+Gaze-centred representation of an object can be found in both early visual pathway (i.e., retina, lateral geniculate nucleus, striate cortex) and also later in the visual pathway (e.g., extrastriate and parietal cortex). The  epresentations move depending on the gaze because the retinal projection of the project depends on the gaze. To perform a cognitive task as reaching of an object, the brain requires information where an object is located. The location can be determined by information about the object's direction ((horizontal and vertical angular eccentricity)) relative to \textit{fovea} and the distance between the object and eyes. Therefore, earlier visual areas carry out the computation of target direction as seen by a virtual eye between the right and left eye; retinal disparity is calculated as the difference between images from both eyes (Crawford, J. D., et al (2004)).
+
+Takato representacia je pre mozog lacnesia ako head-centered pretoze nevyzaduje integraciu oci ked one 
+a autori tvrdia ze sensoricky system tiez koduje auditory and proprioceptive trager in gaze frame
+To co je premietane na retine sa potom transmituje do visual cortex v topofraphically arranged maps a eccentricity in theis map definu smer ku objektu s ktorum sa ma neico robit 
+vzdialenost je specifikovana retinalnou disparitov a convergence a monocular
+Tu ide ako sa to pocita % zapracuj 
+v the early movement planning sa tieto signaly rekombinuju do nejdnotnej 3-d representacie priestoru v gaze framev v posterior parietal cortex 
+
+toto ale znamena ze tieto representacie sa musia stae menit ked sa pohnut ocami teda ked sa zmeni gaze aby bola reprezentacia stablibna ... toto sa nazyva updating alebo remapping 
+updatuje sa tiez pre rotaciu a pre translationa pocas head a body movements
+opis obrazku mozno dobre tam dat obrazok a 
+ukazalo sa ze toto moze mozog robit aj ked dame pred vision, len pouzitim signalov z oculomotor system ohladom pohybu oci
+vyzara to tak ze hat the areas in and around the medial bank of the intraparietal sulcus of the parietal cortex play a major role in representing and remapping reach targets in gaze-centered coordinates.
+Receptivne fieldy of individual parieral neurons sa hybu ked ked pohyb oci corresponduje ku remmapovanie of the target 
+Remappovanie bolo preukazane v n the posterior parietal cortex through human functional magnetic resonance imaging studies. ecent neural recordings in the monkey show evidence of updating in a number of extrastriate visual areas such as areas V3A, V3, and V2.
+Sa zda ze tieto oblasti by mohli hraju rolu pri remappovani pre reach movments. 
+
+#Motor Coding of Reach Movements
+Mozog musi navrhnut pohyb v refernce frame relative to shoulder. 
+PRe specifikovanie 3-d reach plan pobrebuje byt znama aplituda nahrhovaneho pohubu a smer. Viacero studii indikuje ze sme a ampltude mozu byt kodovane nezavisle, na druhej strane europhysiological recordings of neural activity in the dorsal premotor cortex pocas planvovanie reach ukazali ze amplituda a smer su kodovane spolu v jednom neruone. Mozu to byt viacere riesenia ako to rozmotat ze na urovni neuronu je to kodovane spolu  ale su citane rozlicnymi mechanizmami na generovanie aktivacii svalov.
+Kodovanie movement vector v explicitnej representacii shoulder-centere boli najdene u ocicej vectral premotor cortex, mensie porcie neuronov in dorsal premotor cortex a v the primary motor cortex tiez ukazali toto 
+Taka reprezetacie coexist s inou, viac muscle-related  represetation, ktora mozu reflektovat transformaciu tychto codov do aktivacie svalou
+
+takze motor plan v shc rd musiac byt prelozene do aktivacii svalov na pohyb, kde sa musi brat do uvahy nielen smer ale aj akou sily pre kazdy sval
+do uvahy sa mus vrat pozicia sucastna ruky
+ale kedze je vizualny input v GCRF tak sa mus urobit transfoacia do motor command pre ruku v SHCRF. 
+#Visualmotor transforamtion
+Nato aby sa mohlo vypocitat movement vector musi sa brat do uvahy rozdiel medzi rukov teraz a poziciou ruky, nato aby sa to dalo porovnat tak musime mat v oblasti ktora vykonava tento vypocet informacie o ruka aj targete a ich reprezentaciu musia byt v rovnakom RF, nevie sa ktora to robi area a v ktorom RF
+Toto porovananie ruky a ciela moze vyuzivat ciacere reprezentacie v roznych casti mozgy a je tiez zname ze mozog moze ziskavat informacie z roznych zdrojoch a v zmysle senzorickej integracie combinat ich tak aby dostal najvieryhodnejsie pozorovanie.
+Toto by znamenalo ze pristup ku rovnakej informacii ale v rozlicnych RF a podla toho aka je uloha. 
+Ale aj tak je potrebna transformacie z GC do SH, ci uz je to robene nezavisle pre hand a taget alebo combinovane ako desired movent vector. 
+
+Berie sa do uvahy aj rotacei a translacie celeho tela lebo napriklad oko sa pohne v priestore ked sa pohne hlava, teda casti mozgu cor transformaciu musia mat infoamcie o rotacii a oci a halvy tak aby bola ok reprezentacie hand and targer.
+
+\end{comment}
+
+
+% Teoreticky moze 
+ 
+\begin{comment}
+%Committeri:
+%Zacni opat primomenutim co su RF v mozgu.
+
+%A spatial reference frame means the receptive field (RF) of a
+%neuron, or the response of the neural population as a whole, is
+%anchored to a particular reference point. For instance, an eye-
+%centered reference frame moves with the eyes (Colby, 1998).
+
+%- Priestorovan informacie definovana bud ku nejakemu alebo ku nejakemu ext. reference.
+%- pristorva pozicia je kovana egocentricky ku nejakemu casti tela 
+%    //TODO: povedat co je egocentricky: 
+%        Tina Iachini:
+%            frame su vseobecne rozdelene do tvoch druhuv egocetric a annocentric.
+%            Egocetricky pouziva ako centrum priestoru ako nejaky organ oko, ramono 
+%            Anno je nezavisli od pozicie tela, centrum je nejaky objekt v priestore ... 
+%            Dalej sa snazia zistit aka je kapacita anno a ego experimentamy
+%- toto musi byt stale updatovane, 
+
+%- Egocentricke frame su vacsinou asociovane s posterior parietal cortex.
+
+%- Neurons coding spatial position relative to body parts have been found in the monkey’s posterior parietal cortex and in connected regions of the premotor cortex (Cohen & Andersen, 2002; Colby, 1998).
+%- parieto-frontal cortex - priestorove lokacie su v egocentric RF, centrovane ku oku, hlave alebo ruke (Colby, 1998; Hagler et al., 2007; Sereno and Huang, 2014) 
+%- Pacienti trpacimi with lesions to the posterior
+%- parietal cortex maju problem urobit visomotor coordination, (trosku povedz co to je) alebo maju problem preskumat contralesional sido of space.
+%- In unilateral neglect, the affected sector of space is usually egocentrically defined
+
+%-- Kodovanie priestoru v object-base nie je az tak studovane, ale bolo preukazane ... in the monkey’s frontal lobe (Olson & Gettner, 1995).
+%Viacero studii (Fink, Marshall, Shah, et al., 2000; Galati, Lobel, et al., 2000; Honda, Wise, Weeks, Deiber, & Hallett, 1998; Fink, Dolan, Halligan, Marshall, & Frith, 1997) naslo aktivacie v the posterior parietal cortex and the dorsal premotor cortex (PMd) hlavne v pravej hemisphere a pri skorsom spracovani vision, during object-based spatial judgements.
+
+%-- Cells with allocentric properties have been found in the hippocampal formation of both freely-moving rats (Taube, Muller, & Ranck, 1990; O’Keefe & Dostrovsky, 1971) and monkeys (Rolls & O’Mara, 1995; Ono, Nakamura, Nishijo, & Eifuku, 1993), as well as in the rat retrosplenial cortex (Chen, Lin, Green, Barnes, & McNaughton, 1994; McNaughton, Leonard, & Chen, 1989), but also in the monkey’s posterior parietal cortex (Snyder, Grieve, Brotchie, & Andersen, 1998).
+
+%Studie pouzivajuce topographical ulohy ako such as landmark knowledge, orientation in largescale space and navigation zistili aktivanie v in the posterior parahippocampal cortex, the hippocampus, and the retrosplenial cortex, as well as the posterior parietal cortex. Take zlozite ulohy refereuju aj ku extrenal frames aj ku viewer a mozno sa to neda celkom rozmotat.
+
+%t is well-established that neurons in many brain regions, especially parieto-frontal cortex,
+%represent the spatial location of objects in egocentric spatial reference frames, centered on various
+%body parts such as the eye (retina), the head, or the hand ().
+
+%An external, “abstract” reference
+%frame, on the other hand, would represent object locations
+%relative to an external reference point, independent of where the
+%observer is (e.g., the location of the microwave relative to the
+%fridge).
+
+%    -- Gaze-centered repre si pritomne v early visual pathwat (i.e., retina, lateral geniculate nucleus, striate cortex) but also later on in the visual pathway (e.g., extrastriate and parietal cortex). 
+%-- Gaze-centered preto lebo projekcia ktora je na retine sa meni podla toho aky je smer pohladu.
+%-- Ak chceme chytit nejaky objekt tak je vyzadovane smer relativny ku fovae a ako je daleko od oka (egocentric distance)
+%-- Vizualny fliend ktory je premietany na retinu je transmitovany do vizual cortex vo forme topografickej mapy
+%-- Distance je specifikovana both by monocular (accommo- dation, relative object size, shading, perspective, etc.) and binocular (retinal disparity and convergence) information.
+%-- skorsie vizualne areas pocutaju angular eccentricity na zaklade obrazov z oboch oci a disparita retinamna je pocitana %ako rozdiel medzi ocami. 
+
+
+\end{comment}
+

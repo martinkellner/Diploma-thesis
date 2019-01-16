@@ -1,0 +1,17 @@
+root frame - waist of the robot (see http://wiki.icub.org/wiki/ICubForwardKinematics)
+	x-axis - backward, y-axis rightward, z-axis upward, origin: waist
+
+
+
+
+
+
+
+
+
+
+
+Questions:
+
+	Which reference frame is the base for us? root or world ? 
+	

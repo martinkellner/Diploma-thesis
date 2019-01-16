@@ -1,0 +1,48 @@
+Svec exporiment:
+
+    -- inspiracia z Zipser and Andersen 1988, ktory sobili transformaciu z targetu na retine do head-centered cez eye-position. 
+    -- rozhodli sa reprodukovat ich experiment s realistikejsimi datami of stimulov a zahrnut nejake ine modality ako vergence a head movements  
+    -- pozuili Icub lebo je to ma celu geometriu tela a ze to je super vhodne pre level komplexity
+`
+    -- genrovanali data:
+        -- retinal image z targer (bitmaps from cameras), gaze direction, a global target positon 
+           nahdone pohybovali ocali do nejakej pozicie, potom urcile sme kde sa to pozera a umiestnili tak objekt do zorneho pola iCub, 
+
+        upravili to na vstup do neuronoej siete: pozicia objektu bola translatovana do dvoch uhlov co urcuje smer kde je objekt vzhadom ku chest. Tie slopy, eyes version a tilt kodovali populaciami neuronov, 11 neuronov pre eye-tilt, 21 neuronov pre eye-version, 19 neuronov pre horozintal slope a 19 neuronob pre vertical slope, co experimentalne zistili ze najlepsie vysledky. Tento sposob kodovania je blizsi ku tomu ako realne robit mozog nez len jedene neuron. redukovali dimensiu na 64-48 a odstanili background aby bol fest dobre vydiet objekt
+
+        Architectura:
+            -- tree layaer feed-forward ANN
+            -- variacie backpropagation  
+            -- vstupna vrstva: 
+                - styri jendotky pre retinas images , dva pre horizontal a vertical eye positions
+                - image na 6144 neurons, eye-tilt 11 distibuovane cez interval <-35, 15> na eye version 21 neurons cez interval <-50, 50>
+
+            -- skryta vrstva 64 nenruons, bolo experimantalne tiez zistene pre najlepsie vysledky
+            -- vystupna vrstva 19 neuronoc ktore koduju horizontal a vertical direction to iCub chest
+            -- aktivacia na hidden sigmoid a steppness 0.05 pre hidden a 0.1 pre output: daj sigmoid 
+            -- fully connecting 
+            -- zmenili pomer modzi modulitami (retinas proti eye) lebo retina je o dost viac neuronami kodovana tak ze vypocitali koeficienty na balancovania, vybrali ration R: E = 2:1 (mozes dat vzorec )
+
+            Trening:
+ 
+                -- mean squere error: na horizontal a vertical bolo okolo 4 stupna a standartna odhylka bola 3.5 stupna ... a najlepsie vysledky boli dosiahnute cez RPROB algorithms s experimentalne najdenim momentom a learning rate (alpha=1.5 a mi=0.9)
+
+                -- trenovane na 1000 a testovane na 500
+                
+          
+        Vysledky:   
+           RF: 
+           - visualizovali hidden weight units a neuronov ktore reprezentuju visualny input
+           - opsi obrazku a obrazok do je TU,
+           GM:
+            na skumanie GF zaznamenali aktivitu sktylej vsrtvy pri tom instom visaulnom stimule a roznych eye-positions
+            We may notice that the modulation has the same direction
+            as the receptive field, meaning that the receptive field is sensitive to the object at
+            the bottom and the effect of gain modulation is highest when gazing down. We
+            hypothesise that this may be a desired behaviour.
+
+
+            -- toto dopracuj 
+
+
+        
