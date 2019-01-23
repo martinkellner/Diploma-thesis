@@ -2,6 +2,7 @@
 #include <string>
 #include <cmath>
 #include <stdlib.h>
+#include <tuple>
 
 using namespace std;
 
@@ -225,13 +226,12 @@ int My_ICub::getRightArmJoints() {
 
 int My_ICub::getDataFile(string path) {
     if (!datafile.is_open()) {
-        path = path[path.size()-1] == '/' ? path : path + '/';
-        datafile.open((path + "dataset.txt").c_str(), fstream::out | fstream::app);
+        datafile.open(path, std::ios_base::app);
         if (!datafile.is_open()) {
             return 0;
         };
     };
-    cout << "Datafile successufly opened!" << endl;
+    cout << "Given datafile successufly opened!" << endl;
     return 1;
 };
 
@@ -241,6 +241,7 @@ void My_ICub::closeDataFile() {
 };
 
 double My_ICub::randomAngle(double minAngle, double maxAngle) {
+    srand(time(NULL));
     double rang = (double) rand() / RAND_MAX;
     return minAngle + rang * (maxAngle - minAngle);
 };
@@ -290,23 +291,33 @@ void My_ICub::setHeadAnglesAndMove(Vector pose) {
     }
 }
 
-void My_ICub::randomLookWayCollecting(string path, int startFrom, int total) {
+void My_ICub::randomLookWayCollecting(string path) {
     getHeadController();
     getRobotGazeInteface();
     getArmController(RIGHT);
     getDataFile(path);
     setRandomVergenceAngle();
+
     const double maxError = 0.03;
     double maxAngle = 15;
     double minAngle = 3;
     int direction, steps;
-    int doneCorrect = -1;
-    for (int i = startFrom; i < total; i++) {
-        if (i%10 == 0) setRandomVergenceAngle();
-        direction = (doneCorrect == -1 || doneCorrect == 10 || doneCorrect == 9 || doneCorrect == 8) ? (rand() % 9) : doneCorrect;
-        if (doneCorrect != -1) i--;
-        steps = (rand() % 10) + 4;
-        doneCorrect = randomHeadMotions(direction, steps, minAngle, maxAngle, maxError);
+    steps = 6;
+    tuple<int, int> doneCorrect = make_tuple(-1, 0);
+
+    int vergAngles[10] = {44, 32, 41, 40, 37, 36, 33, 35, 43, 42};
+
+    for (int i=0; i < 10; i++ ) {
+        int cntSamples = 0;
+        setVergenceAngle(vergAngles[i]);
+        while (cntSamples < 150) {
+            srand(time(NULL));
+            direction = (get<0>(doneCorrect) == -1 || get<0>(doneCorrect) == 10 || get<0>(doneCorrect) == 9 || get<0>(doneCorrect) == 8) ? (rand() % 9) : get<0>(doneCorrect);
+            srand(time(NULL));
+            doneCorrect = randomHeadMotions(direction, steps, minAngle, maxAngle, maxError);
+            cntSamples += get<1>(doneCorrect);
+            printf("%d. %d samples colleted!\n", i+11, cntSamples);
+        }
     }
 }
 
@@ -318,17 +329,26 @@ void My_ICub::getCurrentFixPoint(Vector &vector) {
 // Use for testing
 void My_ICub::test() {
     getHeadController();
-    setRandomVergenceAngle();
-    getArmController(RIGHT);
     getRobotGazeInteface();
+    getWorldRpcClient();
 
-    Vector res;
-    Vector test(4); test[0] = -0.0193448571615013;  test[1] = 0.802296807676238; test[2] =  0.201241938140468;
-    MatrixOperations::rotoTransfWorldRoot(test, res);
-    printVector(res);
+    setRandomVergenceAngle();
+    setEyesPosition(-5.0, -10.0);
+
+    Vector vectorRoot(3), vectorWorld;
+    getCurrentFixPoint(vectorRoot);
+    cout << vectorRoot[0] << " " << vectorRoot[1] << " " << vectorRoot[2] << endl;
+    MatrixOperations::rotoTransfRootWorld(vectorRoot, vectorWorld);
+    cout << vectorWorld[0] << " " << vectorWorld[1] << " " << vectorWorld[2] << endl;
+
+    Bottle response;
+    world_client->write(WorldYaprRpc::deleteAllObjects(), response);
+    world_client->write(WorldYaprRpc::createBOX(vectorWorld), response);
+
+    takeAndSaveImages("/home/martin/");
 }
 
-int My_ICub::randomHeadMotions(int direction, int steps, double minAng, double maxAngle, double maxError) {
+tuple<int, int> My_ICub::randomHeadMotions(int direction, int steps, double minAng, double maxAngle, double maxError) {
     Property option;
     option.put("device", "cartesiancontrollerclient");
     option.put("remote", "/icubSim/cartesianController/right_arm");
@@ -356,7 +376,7 @@ int My_ICub::randomHeadMotions(int direction, int steps, double minAng, double m
         headAngles[0] += xDiff; headAngles[2] += yDiff;
         if (!checkHeadAngles(headAngles)) {
             fprintf(stderr, "Return false because angles check!\n");
-            return 10; // Break the cycle if a joint angle is out of range!
+            return make_tuple(10, i); // Break the cycle if a joint angle is out of range!
         }
         setHeadAnglesAndMove(headAngles);
         getCurrentFixPoint(fixPoint);
@@ -370,16 +390,16 @@ int My_ICub::randomHeadMotions(int direction, int steps, double minAng, double m
 
         if ((errChck = checkError(error, maxError)) != -1) {
             fprintf(stderr, "Return error code (bigger than -1) if  error is bigger as limit! (%d recommeded direction)\n", errChck);
-            return errChck;
+            return make_tuple(errChck, i);
         } else {
             datafile << vectorDataToString(headAngles) << vectorDataToString(jointConf) << vectorDataToString(fixPoint) << vectorDataToString(xd) << vectorDataToString(error) << '\n';
             datafile.flush();
         }
         //getRightPalmWorldPosition(wHandY); MatrixOperations::rotoTransfWorldRoot(wHandY, rHandY);
         // print data to the file
-        cout << "Head joints: "; printVector(headAngles); cout << "\nArm joints: "; printVector(jointConf); cout << "\nFix point: "; printVector(fixPoint); cout << "\nXD: "; printVector(xd); /*cout << "\nYArm: "; printVector(rHandY);*/ cout << "\nErr: "; printVector(err); cout << endl;
+        //cout << "Head joints: "; printVector(headAngles); cout << "\nArm joints: "; printVector(jointConf); cout << "\nFix point: "; printVector(fixPoint); cout << "\nXD: "; printVector(xd); /*cout << "\nYArm: "; printVector(rHandY);*/ cout << "\nErr: "; printVector(err); cout << endl;
     }
-    return -1;
+    return make_tuple(-1, steps);
 }
 
 void My_ICub::getHeadCurrentVector(Vector &headAngles) {
@@ -411,6 +431,15 @@ void My_ICub::setRandomVergenceAngle() {
     // random angle from 24 to 44
     int randAng = (rand() % 21) + 24;
     head_controller->positionMove(5, randAng);
+    bool is_done = false;
+    while (!is_done) {
+        head_controller->checkMotionDone(&is_done);
+        usleep(10);
+    }
+}
+
+void My_ICub::setVergenceAngle(int value) {
+    head_controller->positionMove(5, value);
     bool is_done = false;
     while (!is_done) {
         head_controller->checkMotionDone(&is_done);
@@ -461,4 +490,45 @@ void My_ICub::setArmJoints(My_ICub::Hand hand, Vector joints) {
             usleep(5);
         }
     }
+}
+
+/*
+ *
+ * titl    - cca 10:-25
+ * version - cca 30:-30
+ */
+void My_ICub::setEyesPosition(double titl, double version) {
+    getHeadController();
+    head_controller->positionMove(3, titl);
+    head_controller->positionMove(4, version);
+    bool is_done = false;
+    while (!is_done) {
+        head_controller->checkMotionDone(&is_done);
+        usleep(5);
+    }
+}
+
+ImageOf<PixelRgb> *My_ICub::getRobotLeftEyeImage() {
+    return getRobotLeftEyeDriver()->read();
+}
+
+ImageOf<PixelRgb> *My_ICub::getRobotRightEyeImage() {
+    return getRobotRightEyeDriver()->read();
+}
+
+void My_ICub::takeAndSaveImages(string path) {
+    string filename;
+    ImageOf<PixelRgb> *leftImg = getRobotLeftEyeImage();
+    if (leftImg != NULL) {
+        filename = path + "l_img.ppm";
+        yarp::sig::file::write(*leftImg, filename);
+        cout << "\tReceived image from the left eye was saved as " << filename << endl;
+    };
+    ImageOf<PixelRgb> *rightImg = getRobotRightEyeImage();
+    if (leftImg != NULL) {
+        filename = path + "r_img.ppm";
+        yarp::sig::file::write(*rightImg, filename);
+        cout << "\tReceived image from the right eye was saved as " << filename << endl;
+    };
+
 }

@@ -55,22 +55,28 @@ void MatrixOperations::rotoTransfRootWorld(Vector rootVct, Vector &rWorldVct) {
      * M =  | -1  0 0 -0.026 |
      *      |  0  0 0      1 |
      */
-
+    cout << "1" << endl;
     rototransM <<  0, -1, 0, 0, 0, 0, 1, 0.5976, -1, 0, 0, -0.026, 0, 0, 0, 1;
     // Yapr vector -> Eigen lib vector;
     Vector4f rootVctE;
     int size;
-    if ((size = rootVct.size()) < 4) {
+    /*if ((size = rootVct.size()) < 4) {
         printf("Given world vector must have at least 4 dimensions, current size: %d\n", size);
         return;
-    }
-    rootVctE << rootVct[0], rootVct[1], rootVct[2], rootVct[3];
+    }*/
+    cout << "2" << endl;
+
+    rootVctE << rootVct[0], rootVct[1], rootVct[2], 1.0;
     Vector4f worldVctE;
     // Rototransfomation to the reference frame.
     worldVctE = rototransM * rootVctE;
+
     // Setting Eigen vector's data to the result world vector (yarp vector)
+    rWorldVct.resize(3);
     float *resData = worldVctE.data();
     for (int i=0; i<3; i++) {
         rWorldVct[i] = resData[i];
     }
+    cout << "4" << endl;
+
 }

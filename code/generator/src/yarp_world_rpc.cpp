@@ -16,7 +16,7 @@ using namespace yarp::os;
 
 Bottle WorldYaprRpc::createBOX(Vector worldVct) {
     //TODO: set color to red (or another)
-    return createCmd("sssfffffffff", "world", "mk", "sbox", .03, .03, .03, worldVct[0], worldVct[1], worldVct[2], 1, 1, 1);
+    return createCmd("sssfffffffff", "world", "mk", "sbox", 0.01, 0.01, 0.01, worldVct[0], worldVct[1], worldVct[2], 0.8, .2, 0.1);
 
 }
 
