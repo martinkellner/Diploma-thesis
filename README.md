@@ -36,4 +36,5 @@ Sensory processing in the brain entails multisensory integration (combining cues
 
 ## Progress
 
-The first presentation about my progress: <a href="http://www.st.fmph.uniba.sk/~kellner7/prez/ds.pdf">pdf</a>
+The first presentation: <a href="http://www.st.fmph.uniba.sk/~kellner7/prez/ds.pdf">pdf</a> <br>
+The second presentation: <a href="https://github.com/martinkellner/master-thesis/blob/master/notes/progress/README.md">md</a>
