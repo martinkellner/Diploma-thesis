@@ -530,5 +530,21 @@ void My_ICub::takeAndSaveImages(string path) {
         yarp::sig::file::write(*rightImg, filename);
         cout << "\tReceived image from the right eye was saved as " << filename << endl;
     };
+}
 
+void My_ICub::collectData() {
+    getHeadController();
+    getWorldRpcClient();
+    Vector gazeFixation, worldGCoors, handAngles;
+
+    //TODO: create loop
+    setRandomVergenceAngle(); //TODO: iterate sequentially instead random way
+    setEyesPosition(0, 0);    //TODO: set random eye angles
+    getCurrentFixPoint(gazeFixation);
+    askForHandAgles(gazeFixation, xd, od, handAngles);  //TODO: create function to receive agles
+    checkErrorGazeHand()      //TODO: create function to compare error between gaze-fix point and given xd, and return recommended direction
+    // Continue if error isn't out of limit
+    MatrixOperations::rotoTransfRootWorld(gazeFixation, worldGCoors);
+    runYarpCommand(WorldYaprRpc::createBOX(worldGCoors));   //TODO: put an object to fix-point
+    takeImagesAndSave()    //TODO: change head angles (titl, version) and take images, save images and save angles - all of this for each change
 }
