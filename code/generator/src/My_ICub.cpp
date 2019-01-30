@@ -240,10 +240,10 @@ void My_ICub::closeDataFile() {
     datafile.close();
 };
 
-double My_ICub::randomAngle(double minAngle, double maxAngle) {
+double My_ICub::randomValue(double min, double max) {
     srand(time(NULL));
     double rang = (double) rand() / RAND_MAX;
-    return minAngle + rang * (maxAngle - minAngle);
+    return min + rang * (max - min);
 };
 
 void My_ICub::getWorldRpcClient() {
@@ -328,12 +328,16 @@ void My_ICub::getCurrentFixPoint(Vector &vector) {
 
 // Use for testing
 void My_ICub::test() {
+
+    /*
+    * titl    - cca 10:-25
+    * version - cca 30:-30
+    */
     getHeadController();
     getRobotGazeInteface();
     getWorldRpcClient();
-
-    setRandomVergenceAngle();
-    setEyesPosition(-5.0, -10.0);
+    //setRandomVergenceAngle();
+    setVergenceAngle(44);
 
     Vector vectorRoot(3), vectorWorld;
     getCurrentFixPoint(vectorRoot);
@@ -342,10 +346,8 @@ void My_ICub::test() {
     cout << vectorWorld[0] << " " << vectorWorld[1] << " " << vectorWorld[2] << endl;
 
     Bottle response;
-    world_client->write(WorldYaprRpc::deleteAllObjects(), response);
+    //world_client->write(WorldYaprRpc::deleteAllObjects(), response);
     world_client->write(WorldYaprRpc::createBOX(vectorWorld), response);
-
-    takeAndSaveImages("/home/martin/");
 }
 
 tuple<int, int> My_ICub::randomHeadMotions(int direction, int steps, double minAng, double maxAngle, double maxError) {
@@ -371,8 +373,8 @@ tuple<int, int> My_ICub::randomHeadMotions(int direction, int steps, double minA
     Vector err(3); Vector wHandY, rHandY, xd, od, jointConf;
     int errChck;
     for (int i=0; i<steps; i++) {
-        xDiff = randomAngle(minAng, maxAngle)*xDir;
-        yDiff = randomAngle(minAng, maxAngle)*yDir;
+        xDiff = randomValue(minAng, maxAngle)*xDir;
+        yDiff = randomValue(minAng, maxAngle)*yDir;
         headAngles[0] += xDiff; headAngles[2] += yDiff;
         if (!checkHeadAngles(headAngles)) {
             fprintf(stderr, "Return false because angles check!\n");
@@ -497,10 +499,18 @@ void My_ICub::setArmJoints(My_ICub::Hand hand, Vector joints) {
  * titl    - cca 10:-25
  * version - cca 30:-30
  */
-void My_ICub::setEyesPosition(double titl, double version) {
+void My_ICub::setEyesPosition(double titl, double version, bool adding) {
     getHeadController();
-    head_controller->positionMove(3, titl);
-    head_controller->positionMove(4, version);
+    if (!adding) {
+        head_controller->positionMove(3, titl);
+        head_controller->positionMove(4, version);
+    } else {
+        double crrTitl, crrVersion;
+        head_controller->getTargetPosition(3, &crrTitl);
+        head_controller->getTargetPosition(4, &crrVersion);
+        head_controller->positionMove(3, crrTitl + titl);
+        head_controller->positionMove(4, crrTitl + version);
+    }
     bool is_done = false;
     while (!is_done) {
         head_controller->checkMotionDone(&is_done);
@@ -535,16 +545,116 @@ void My_ICub::takeAndSaveImages(string path) {
 void My_ICub::collectData() {
     getHeadController();
     getWorldRpcClient();
-    Vector gazeFixation, worldGCoors, handAngles;
+    Vector gazeFixation, worldGCoors, handAngles, xd, od;
+    int count = 100;
+    int min = 3;
+    int max = 8;
+    int i = 0;
+    int dir = 0;
+    double xDiff, yDiff;
+    double directions[] = {0, 1, 0, -1, 1, 0, -1, 0, 1, 1, -1, -1, -1, 1, 1, -1};
 
-    //TODO: create loop
-    setRandomVergenceAngle(); //TODO: iterate sequentially instead random way
-    setEyesPosition(0, 0);    //TODO: set random eye angles
-    getCurrentFixPoint(gazeFixation);
-    askForHandAgles(gazeFixation, xd, od, handAngles);  //TODO: create function to receive agles
-    checkErrorGazeHand()      //TODO: create function to compare error between gaze-fix point and given xd, and return recommended direction
-    // Continue if error isn't out of limit
-    MatrixOperations::rotoTransfRootWorld(gazeFixation, worldGCoors);
-    runYarpCommand(WorldYaprRpc::createBOX(worldGCoors));   //TODO: put an object to fix-point
-    takeImagesAndSave()    //TODO: change head angles (titl, version) and take images, save images and save angles - all of this for each change
+    while (i < count) {
+        if (i % 15 == 0) {
+            setRandomVergenceAngle();
+        }
+        if (i % 4 == 0) {
+            dir = randomValue(0, 7);
+        }
+        xDiff = randomValue(min, max) * directions[2 * dir];
+        yDiff = randomValue(min, max) * directions[(2 * dir) + 1];
+
+        setEyesPosition(xDiff, yDiff, true);
+        getCurrentFixPoint(gazeFixation);
+        getInvKinHandAngles(gazeFixation, xd, od, handAngles);
+        bool result = checkErrorGazeHand(gazeFixation, xd, 4);  //TODO: test it
+        if (result) {
+
+            MatrixOperations::rotoTransfRootWorld(gazeFixation, worldGCoors);
+            runYarpCommand(WorldYaprRpc::createBOX(worldGCoors));
+            Vector angles, result;
+            getCurrentAyesAngles(&angles);
+            disignChanges(angles, &result);
+            for (int j = 0; j < 4; ++j) {
+                setEyesPosition(result[j*2], result[(j*2)+1], true);
+                takeImagesAndSave();    //TODO: save images and save angles - all of this for each change
+                i++;
+            }
+        }
+    }
 }
+
+bool My_ICub::checkErrorGazeHand(Vector gaze, Vector hand, double limit) {
+    int dir = -2;
+    bool success = true;
+    Vector error(3);
+    double repairAngle = 5.0;
+
+    for (int i = 0; i < 3; ++i) {
+        error[i] = gaze[i] - hand[i];
+        if (abs(error[i]) > limit) {
+            success = false;
+        }
+    }
+
+    if (!success) {
+        double xDir, xDiff, yDir, yDiff;
+        double directions[] = {0, 1, 0, -1, 1, 0, -1, 0, 1, 1, -1, -1, -1, 1, 1, -1};
+
+        if (error[1] > limit && error[2] < limit * -1) {
+            dir = 4;
+        } else if (error[1] < limit * -1 && error[2] > limit) {
+            dir = 5;
+        } else if (error[1] > limit && error[2] > limit) {
+            dir = 6;
+        } else if (error[1] < limit * -1 && error[2] < limit * -1) {
+            dir = 7;
+        } else if (error[1] < limit * -1) {
+            dir = 1;
+        } else if (error[1] > limit) {
+            dir = 0;
+        } else if (error[2] > limit) {
+            dir = 3;
+        } else if (error[2] < limit * -1) {
+            dir = 2;
+        } else {
+            dir = -1;
+        }
+        if (dir != -1) {
+            xDiff = repairAngle * directions[(dir * 2)];
+            yDiff = repairAngle * directions[(dir * 2) + 1];
+            setEyesPosition(xDiff, yDiff, true);
+        }
+    }
+
+    return success;
+}
+
+void My_ICub::takeImagesAndSave() {}
+
+Bottle My_ICub::runYarpCommand(Bottle bottle) {
+    getWorldRpcClient();
+    Bottle response;
+    world_client->write(bottle, response);
+    return response;
+}
+
+void My_ICub::getCurrentAyesAngles(Vector *pOf) {
+
+}
+
+void My_ICub::disignChanges(Vector of, Vector *pOf) {
+
+}
+
+/*void getInvKinHandAngles(Vector of, Vector &vectorOf, Vector &od, Vector &angles) {
+    Property option;
+    option.put("device", "cartesiancontrollerclient");
+    option.put("remote", "/icubSim/cartesianController/right_arm");
+    option.put("local", "/client/right_arm");
+
+    PolyDriver clientCartCtrl(option);
+    ICartesianControl *icart = NULL;
+    icart->askForPosition(of, vectorOf, od, angles);
+    clientCartCtrl.close();
+}*/
