@@ -5,6 +5,7 @@
 #include <string.h>
 #include <fstream>
 #include <vector>
+#include <tuple>
 using namespace std;
 
 #include <yarp/dev/PolyDriver.h>
@@ -38,9 +39,9 @@ class My_ICub {
         void closeDataFile();
         //void prepareDatasetFile(string path, double const angle);
         void test();
-
-//void randomHandWatchCollecting(string path, int startFrom, int total, int imagesCount, bool armSeen);
-void randomLookWayCollecting(string path, int startFrom, int total);
+        //void randomHandWatchCollecting(string path, int startFrom, int total, int imagesCount, bool armSeen);
+        void randomLookWayCollecting(string path);
+    void collectData(string pathname);
 
 protected:
         string
@@ -62,7 +63,8 @@ protected:
 
         ofstream datafile;
         int getDataFile(string path);
-        double randomAngle(double minAngle, double maxAngle);
+        double randomDoubleValue(double min, double max);
+        int randomIntValue(int min, int max);
 
         ImageOf<PixelRgb> *getRobotRightEyeImage();
         ImageOf<PixelRgb> *getRobotLeftEyeImage();
@@ -97,12 +99,13 @@ protected:
         void getWorldRpcClient();
         void getRightPalmWorldPosition(Vector &vector);
         void setRightArmVector();
+        void setEyesPosition(double titl, double version, bool adding);
 
         Vector right_arm_vector;
         Vector head_limit_vector;
         void setHeadAnglesAndMove(Vector pose);
         void getCurrentFixPoint(Vector &vector);
-        int randomHeadMotions(int direction, int steps, double minAng, double maxAngle, double maxError);
+        tuple<int, int> randomHeadMotions(int direction, int steps, double minAng, double maxAngle, double maxError);
         void getHeadCurrentVector(Vector &headAngles);
         void invKinArmMovement(Hand hand, Vector pose);
         void armMovement(Vector diff, bool wait);
@@ -113,6 +116,20 @@ protected:
         void setRandomVergenceAngle();
         void getArmJoints(Vector &armJoints);
         void setArmJoints(Hand hand, Vector joints);
+        void setVergenceAngle(int value);
+        void takeAndSaveImages(string path);
+
+    bool checkErrorGazeHand(Vector gaze, Vector hand, double limit);
+
+    void takeImagesAndSave();
+
+    Bottle runYarpCommand(Bottle bottle);
+
+    void getInvKinHandAngles(Vector of, Vector &vectorOf, Vector &od, Vector &angles);
+
+    void getCurrentAyesAngles(Vector &pOf);
+
+    void disignChanges(Vector of, Vector &pOf);
 };
 
 #endif
