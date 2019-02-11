@@ -3,6 +3,8 @@ import os
 import numpy as np
 import cv2
 
+from training.FRMW_UBAL import UbalNet
+
 #def readFile(path):
 #    return pd.read_csv(path, sep=',')
 
@@ -77,4 +79,17 @@ def markIncorrectSamples(filename, filterThreshold=250):
     crrtfile.close()
 
 if __name__ == '__main__':
-    markIncorrectSamples("/home/martin/data/dataset.txt", filterThreshold=250)
+    #markIncorrectSamples("/home/martin/data/dataset.txt", filterThreshold=250)
+
+    X = np.array([[1, 0, 0, 0, 0, 1, 0, 1],
+                  [0, 1, 0, 0, 0, 0, 1, 1],
+                  [0, 0, 1, 0, 1, 1, 0, 0],
+                  [0, 0, 0, 1, 0, 0, 0, 0]])
+    y = np.array([[1, 0, 0, 0, 1, 1],
+                  [0, 1, 0, 0, 1, 0],
+                  [0, 0, 1, 0, 1, 0],
+                  [0, 0, 0, 1, 1, 1]])
+
+    un1 = UbalNet()
+    un1.setHyperparamenters(.1, 100, 10)
+    un1.fit(X, y)

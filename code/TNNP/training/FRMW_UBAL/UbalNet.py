@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+from training.FRMW_UBAL.DataPreparation import getData
 
 class UbalNet:
 
@@ -116,6 +116,9 @@ class UbalNet:
 
             fError.append(np.mean(epFError))
             bError.append(np.mean(epBError))
+
+            print("Epoch: {}\tForward MSE:{}\tBackward MSE:{}".format(ep, epFError[-1], epBError[-1]))
+
         self.plotError(fError, bError, ep)
 
     def plotError(self, errF, errB, ep):
@@ -136,7 +139,9 @@ class UbalNet:
         plt.show()
 
     def lostFuntion(self, targets, outputs):
-        return np.sum((targets - outputs) ** 2, axis=0)
+        lost = np.sum((targets - outputs) ** 2)
+        #print(lost)
+        return lost
 
     def activation(self, x):
         if self.af == "sigmoid":
@@ -150,15 +155,7 @@ class UbalNet:
 
 
 if __name__ == '__main__':
-    X = np.array([[1, 0, 0, 0, 0, 1, 0, 1],
-                  [0, 1, 0, 0, 0, 0, 1, 1],
-                  [0, 0, 1, 0, 1, 1, 0, 0],
-                  [0, 0, 0, 1, 0, 0, 0, 0]])
-    y = np.array([[1, 0, 0, 0, 1, 1],
-                  [0, 1, 0, 0, 1, 0],
-                  [0, 0, 1, 0, 1, 0],
-                  [0, 0, 0, 1, 1, 1]])
-
+    X, y = getData()
     un1 = UbalNet()
-    un1.setHyperparamenters(.1, 100, 10)
+    un1.setHyperparamenters(.05, 30, 15)
     un1.fit(X, y)

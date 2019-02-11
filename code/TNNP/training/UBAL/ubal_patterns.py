@@ -31,13 +31,13 @@ def random_patterns():
     return X, y
 
 # data
-#X, y = random_patterns()
-X, y = XOR()
+X, y = random_patterns()
+#X, y = XOR()
 
 # net architecture
-numInp = 2  # number of features in dataset
+numInp = 8  # number of features in dataset
 numHid = 6
-numOut = 1 #6
+numOut = 6 #6
 
 # hyperparameters
 lr = 0.1
