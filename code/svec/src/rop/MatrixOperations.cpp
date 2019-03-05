@@ -19,7 +19,7 @@ void MatrixOp::multiplyM33M31(double m33[], double m31[], double res[]) {
 	for (int i=0; i<3; i++) {		//apply rotation (multiply matrix)
 		res[i] = 0;
 		for (int j=0; j<3; j++) {			
-			res[i] += m33[i*3+j] * m31[j]; 
+			res[i] += m33[i*x3+j] * m31[j];
 		}		
 	}	
 }

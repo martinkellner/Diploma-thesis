@@ -41,7 +41,11 @@ class My_ICub {
         void test();
         //void randomHandWatchCollecting(string path, int startFrom, int total, int imagesCount, bool armSeen);
         void randomLookWayCollecting(string path);
-    void collectData(string pathname);
+        void collectData(string pathname);
+        Vector getFixPointFromHeadConf(Vector headGAngles, bool takeImages, string savepath);
+        Vector getBPointFromHandConf(Vector handGAngles, bool createBox);
+    string vectorDataToString(Vector vector);
+    void printVector(Vector vec);
 
 protected:
         string
@@ -109,15 +113,16 @@ protected:
         void getHeadCurrentVector(Vector &headAngles);
         void invKinArmMovement(Hand hand, Vector pose);
         void armMovement(Vector diff, bool wait);
-        void printVector(Vector vec);
-        bool checkHeadAngles(Vector headAngles);
-        string vectorDataToString(Vector vector);
+
+    bool checkHeadAngles(Vector headAngles);
+
         int checkError(Vector error, const double maxErr);
         void setRandomVergenceAngle();
         void getArmJoints(Vector &armJoints);
         void setArmJoints(Hand hand, Vector joints);
         void setVergenceAngle(int value);
         void takeAndSaveImages(string path);
+        Vector getCrrHandAngles();
 
     bool checkErrorGazeHand(Vector gaze, Vector hand, double limit);
 

@@ -300,6 +300,7 @@ void My_ICub::randomLookWayCollecting(string path) {
     getArmController(RIGHT);
     getDataFile(path);
     setRandomVergenceAngle();
+    srand(NULL);
 
     const double maxError = 0.03;
     double maxAngle = 15;
@@ -314,9 +315,8 @@ void My_ICub::randomLookWayCollecting(string path) {
         int cntSamples = 0;
         setVergenceAngle(vergAngles[i]);
         while (cntSamples < 150) {
-            srand(time(NULL));
+
             direction = (get<0>(doneCorrect) == -1 || get<0>(doneCorrect) == 10 || get<0>(doneCorrect) == 9 || get<0>(doneCorrect) == 8) ? (rand() % 9) : get<0>(doneCorrect);
-            srand(time(NULL));
             doneCorrect = randomHeadMotions(direction, steps, minAngle, maxAngle, maxError);
             cntSamples += get<1>(doneCorrect);
             printf("%d. %d samples colleted!\n", i+11, cntSamples);
@@ -332,25 +332,21 @@ void My_ICub::getCurrentFixPoint(Vector &vector) {
 // Use for testing
 void My_ICub::test() {
 
-    /*
-    * titl    - cca 10:-25
-    * version - cca 30:-30
-    */
     getHeadController();
     getRobotGazeInteface();
-    getWorldRpcClient();
-    //setRandomVergenceAngle();
-    setVergenceAngle(44);
 
-    Vector vectorRoot(3), vectorWorld;
-    getCurrentFixPoint(vectorRoot);
-    cout << vectorRoot[0] << " " << vectorRoot[1] << " " << vectorRoot[2] << endl;
-    MatrixOperations::rotoTransfRootWorld(vectorRoot, vectorWorld);
-    cout << vectorWorld[0] << " " << vectorWorld[1] << " " << vectorWorld[2] << endl;
+    setVergenceAngle(17);
+    Vector vector1(4);
+    getCurrentFixPoint(vector1);
+    printVector(vector1);
+    Vector a, b, c;
+    getInvKinHandAngles(vector1, a, b, c);
+    printVector(vector1);
+    printVector(a);
 
-    Bottle response;
-    //world_client->write(WorldYaprRpc::deleteAllObjects(), response);
-    world_client->write(WorldYaprRpc::createBOX(vectorWorld), response);
+
+
+
 };
 
 tuple<int, int> My_ICub::randomHeadMotions(int direction, int steps, double minAng, double maxAngle, double maxError) {
@@ -486,9 +482,7 @@ void My_ICub::getArmJoints(Vector &armJoints) {
 void My_ICub::setArmJoints(My_ICub::Hand hand, Vector joints) {
     getArmController(hand);
     if (hand == RIGHT) {
-        for (int i=0; i<joints.size(); i++) {
-            right_arm_controller->positionMove(i, joints[i]);
-        }
+        right_arm_controller->positionMove(joints.data());
         bool is_done = false;
         while (!is_done) {
             right_arm_controller->checkMotionDone(&is_done);
@@ -550,20 +544,25 @@ void My_ICub::collectData(string pathname) {
     getWorldRpcClient();
     Vector gazeFixation, worldGCoors, handAngles, xd, od;
     srand(time(NULL));
-    setRandomVergenceAngle();
 
-    int count = 1000;
+    int vergence = 36;
     int min = 3;
     int max = 8;
-    int i = 562;
+    int i = 820;
+    int j = 0;
     int dir = 0;
     double xDiff, yDiff;
     double directions[] = {0, 1, 0, -1, 1, 0, -1, 0, 1, 1, -1, -1, -1, 1, 1, -1};
 
-    while (i < count) {
-        if (i % 15 == 0) {
-            setRandomVergenceAngle();
+    setVergenceAngle(vergence);
+
+    while (vergence < 41) {
+        if (j > 10) {
+            j = 0;
+            vergence ++;
+            setVergenceAngle(vergence);
         }
+
         if (i % 4 == 0) {
             dir = randomIntValue(0, 7);
         }
@@ -577,9 +576,10 @@ void My_ICub::collectData(string pathname) {
         for (int k=0; k<3; ++k) {
             error[k] = abs(gazeFixation[k] - xd[k]);
         }
-        bool result = checkErrorGazeHand(gazeFixation, xd, 4);  //TODO: test it
+        bool result = checkErrorGazeHand(gazeFixation, xd, 3.0);  //TODO: test it
 
         if (result) {
+            j ++;
             MatrixOperations::rotoTransfRootWorld(gazeFixation, worldGCoors);
             runYarpCommand(WorldYaprRpc::deleteAllObjects());
             runYarpCommand(WorldYaprRpc::createBOX(worldGCoors));
@@ -704,4 +704,73 @@ void My_ICub::getInvKinHandAngles(Vector of, Vector &vectorOf, Vector &od, Vecto
 
     icart->askForPosition(of, vectorOf, od, angles);
     //clientCartCtrl.close();
+}
+
+Vector My_ICub::getFixPointFromHeadConf(Vector headGAngles, bool takeImages, string savepath) {
+    getHeadController();
+    Vector headAngles; getHeadCurrentVector(headAngles);
+    if (takeImages == true) {
+        headAngles[3] = headGAngles[0];
+        headAngles[4] = headGAngles[1];
+        headAngles[5] = headGAngles[2];
+
+    } else {
+        headAngles[0] = headGAngles[0];
+        headAngles[2] = headGAngles[1];
+        headAngles[5] = headGAngles[2];
+    }
+    setHeadAnglesAndMove(headAngles);
+    Vector fixPoint(3);
+    getCurrentFixPoint(fixPoint);
+    if (takeImages == true) {
+        takeAndSaveImages(savepath);
+    }
+
+    return fixPoint;
+}
+
+Vector My_ICub::getBPointFromHandConf(Vector handGAngles, bool createBox) {
+    getArmController(RIGHT);
+    Vector crrhand = getCrrHandAngles();
+
+    for (int i=0; i<handGAngles.size(); i++) {
+        crrhand[i] = handGAngles[i];
+    }
+
+    if (createBox == true) {
+        runYarpCommand(WorldYaprRpc::deleteAllObjects());
+    }
+
+    setArmJoints(RIGHT, crrhand);
+
+    Bottle bottle = WorldYaprRpc::getRightHandWorldPosition();
+    Bottle resp = runYarpCommand(bottle);
+
+    Vector hand(4), bhand(3);
+    hand[0] = resp.get(0).asFloat64(); hand[1] = resp.get(1).asFloat64(); hand[2] = resp.get(2).asFloat64(); hand[3] = 1.0;
+    if (createBox == true) {
+
+        for (int i=0; i<7; i++) {
+            crrhand[i] = 0;
+        }
+
+        setArmJoints(RIGHT, crrhand);
+        runYarpCommand(WorldYaprRpc::deleteAllObjects());
+        runYarpCommand(WorldYaprRpc::createBOX(hand));
+    }
+
+    MatrixOperations::rotoTransfWorldRoot(hand, bhand);
+    return bhand;
+}
+
+Vector My_ICub::getCrrHandAngles() {
+    int jnts = getRightArmJoints();
+    getArmController(RIGHT);
+    double *angs = new double[jnts];
+    right_arm_controller->getTargetPositions(angs);
+    Vector handVector(jnts);
+     for (int i=0; i<jnts; i++) {
+        handVector[i] = angs[i];
+    }
+    return handVector;
 }

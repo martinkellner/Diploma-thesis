@@ -7,27 +7,7 @@
 #include <yarp/os/BufferedPort.h>
 #include <yarp/os/Network.h>
 using namespace yarp::os;
-
-#include <yarp/sig/Image.h>
-#include <yarp/sig/Vector.h>
-using namespace yarp::sig;
-
-#include <yarp/dev/PolyDriver.h>
-#include <yarp/dev/IPositionControl.h>
-#include <yarp/dev/ControlBoardInterfaces.h>
-using namespace yarp::dev;
-
-#include <iostream>
-#include <string>
-using namespace std;
-
-#include <Windows.h>
-
-#include "MySim.h"
-
-
-//_____________________________________________________________________________
-//______ CONSTRUCTOR, DESTRUCTOR, STATIC DECLARATIONS _________________________
+STATIC DECLARATIONS _________________________
 
 MySim::MySim(string robotName, string ownPortName) {
 	eyeLx =  0.034;
@@ -44,6 +24,26 @@ MySim::MySim(string robotName, string ownPortName) {
 	ZF_WIDTH = 0.32;
 	ZF_HEIGHT = 0.24;	
 	this->robotName = robotName;
+#include <yarp/sig/Image.h>
+#include <yarp/sig/Vector.h>
+	using namespace yarp::sig;
+
+#include <yarp/dev/PolyDriver.h>
+#include <yarp/dev/IPositionControl.h>
+#include <yarp/dev/ControlBoardInterfaces.h>
+	using namespace yarp::dev;
+
+#include <iostream>
+#include <string>
+	using namespace std;
+
+#include <Windows.h>
+
+#include "MySim.h"
+
+
+//_____________________________________________________________________________
+//______ CONSTRUCTOR, DESTRUCTOR,
 	this->ownPort = ownPortName;
 	worldPort = "/world";
 	headPort = "/head";
