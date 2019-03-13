@@ -32,8 +32,14 @@ class UbalNet:
         self.gamma = [0, 0, 0, .8]
         self.count = None
 
-        self.fig, self.axs = plt.subplots(2, 1)
+        #self.fig, self.axs = plt.subplots(2, 1)
+
         self.foldername = ""
+        self.last_forward_activation = None
+        self.last_backward_activation = None
+        self.last_forward_sum = None
+        self.last_backward_sum = None
+
         if not loaded:
             if os.path.isdir(path):
                 filenames = (path if path[-1] == '/' else path + '/') + name
@@ -46,13 +52,15 @@ class UbalNet:
             self.foldername = (path if path[-1] == '/' else path + '/') + name
 
     def forward_prediction(self, input, weights, bias):
-        return self.activation(np.dot(input, weights) + bias)
+        sum = np.dot(input, weights) + bias
+        return self.activation(sum), sum
 
     def forward_echo(self, prediction, weights, bias):
         return self.activation(np.dot(prediction, weights) + bias)
 
     def backward_prediction(self, output, weights, bias):
-        return self.activation(np.dot(output, weights) + bias)
+        sum = np.dot(output, weights) + bias
+        return self.activation(sum)
 
     def backward_echo(self, prediction, weights, bias):
         return self.activation(np.dot(prediction, weights) + bias)
@@ -84,11 +92,14 @@ class UbalNet:
         np.save(self.foldername + "D_2.npy", self.d2)
 
     def predictForward(self, x):
-        hidd_step = self.forward_prediction(x, self.W1, self.b1)
-        return self.forward_prediction(hidd_step, self.W2, self.b2)
+        hidd_step, sum = self.forward_prediction(x, self.W1, self.b1)
+        self.last_forward_activation = hidd_step
+        self.last_forward_sum = sum
+        return self.forward_prediction(hidd_step, self.W2, self.b2)[0]
 
     def predictBackward(self, y):
         hidd_step = self.backward_prediction(y, self.M1, self.d1)
+        self.last_backward_activation = hidd_step
         return self.backward_prediction(hidd_step, self.M2, self.d2)
 
     def test(self, test_X, test_Y):
@@ -102,7 +113,6 @@ class UbalNet:
         return np.mean(testXerr), np.mean(testYerr)
 
     def training(self, x_train, y_train, x_test, y_test, log):
-
         fError = []
         bError = []
         indexs = np.arange(x_train.shape[0])
@@ -127,10 +137,10 @@ class UbalNet:
 
             for idx in indexs:
 
-                qhfp = self.forward_prediction(x_train[idx], self.W1, self.b1)
+                qhfp = self.forward_prediction(x_train[idx], self.W1, self.b1)[0]
                 pofe = self.forward_echo(qhfp, self.M2, self.d2)
 
-                qofp = self.forward_prediction(qhfp, self.W2, self.b2)
+                qofp = self.forward_prediction(qhfp, self.W2, self.b2)[0]
                 phfe = self.forward_echo(qofp, self.M1, self.d1)
 
                 phbp = self.backward_prediction(y_train[idx], self.M1, self.d1)
@@ -170,8 +180,6 @@ class UbalNet:
                 epBError.append(self.mse(x_train[idx], pobp))
                 #neuInpErr.append(np.abs(x_train[idx] - pobp))
                 #neuOutputErr.append(np.abs(y_train[idx] - qofp))
-
-
 
             fError.append(np.mean(epFError))
             bError.append(np.mean(epBError))
@@ -256,6 +264,11 @@ class UbalNet:
         self.f_beta = f_beta
         self.gamma = gammas
 
+    def get_last_activations(self, direction="Forward"):
+        return self.last_forward_activation[0]
+
+    def get_last_sums(self, direction="Forward"):
+        return self.last_forward_sum[0]
 
 def getListOfBestError(modelsfolder):
     logfile = "logfile.txt"
@@ -299,7 +312,7 @@ def loadModel(foldername, lists=False):
             bestFBScore = [numbers[0], numbers[2]]
             bestFName = results[i]
 
-    waitInput = input("Select model to load: ")
+    waitInput = "best" #input("Select model to load: ")
     if waitInput.isdigit():
         pass
     elif waitInput == "best":
@@ -527,7 +540,7 @@ def pointsDistanceError():
         ax.scatter(fixPoints[i, 0], fixPoints[i, 1], fixPoints[i, 2], color=colors[color])
 
     print("The number of test under: {} - {}\nThe number of test under: {} - {}\nThe number of test under: {} - {}\nThe number of test over {} - {}\n".format(avgErrArm/2, count[0], avgErrArm, count[1], avgErrArm*1.5, count[2], avgErrArm*1.5, count[3]))
-
+    print("MAX error: {}, MIN Error:{}".format(max(diffArm), min(diffArm)))
     plt.show()
 
 
@@ -585,9 +598,9 @@ if __name__ == '__main__':
     #X, Y = getData("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/new_flt.csv", scale=True)
     #x_train, y_train, x_test, y_test = splitDataSetToTestAndTrain(X, Y, ratio=0.75)
     #findHyperParameters(x_train, y_train, x_test, y_test)
-    #model = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/ret2/")
-    #X = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testX_scl.csv").values[:, 1:]
-    #Y = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testY_scl.csv").values[:, 1:]
-    #validateModel(model, X, Y, version='ret')
+    model = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/ret2/")
+    X = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testX_scl.csv").values[:, 1:]
+    Y = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testY_scl.csv").values[:, 1:]
+    validateModel(model, X, Y, version='ret')
     #getPredDataset(X, Y, model, version="ret", pathtosave="/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/prediction/")
     pointsDistanceError()
