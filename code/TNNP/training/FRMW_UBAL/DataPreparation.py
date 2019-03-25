@@ -12,8 +12,8 @@ def scaleDataSet(dataset):
     scaler = MinMaxScaler(feature_range=(0, 1))
     print(dataset.columns)
     dataset[dataset.columns] = scaler.fit_transform(dataset[dataset.columns])
-    joblib.dump(scaler, "/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/scaler/sc3.pkl")
-    dataset.to_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/last_saved_scaled_2.csv")
+    joblib.dump(scaler, "/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/scaler/sc4.pkl")
+    dataset.to_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/last_saved_scaled_3.csv")
 
     return dataset
 

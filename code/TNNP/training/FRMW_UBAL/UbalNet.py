@@ -598,9 +598,11 @@ if __name__ == '__main__':
     #X, Y = getData("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/new_flt.csv", scale=True)
     #x_train, y_train, x_test, y_test = splitDataSetToTestAndTrain(X, Y, ratio=0.75)
     #findHyperParameters(x_train, y_train, x_test, y_test)
-    model = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/ret2/")
-    X = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testX_scl.csv").values[:, 1:]
-    Y = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testY_scl.csv").values[:, 1:]
-    validateModel(model, X, Y, version='ret')
+    #model = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/ret2/")
+    #X = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testX_scl.csv").values[:, 1:]
+    #Y = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testY_scl.csv").values[:, 1:]
+    #validateModel(model, X, Y, version='ret')
     #getPredDataset(X, Y, model, version="ret", pathtosave="/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/prediction/")
-    pointsDistanceError()
+    #pointsDistanceError()
+
+    X, Y = getData("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/new_flt.csv", scale=True)
