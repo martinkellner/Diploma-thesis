@@ -1,4 +1,4 @@
-from training.FRMW_UBAL.datapreparation.plotDataset import extractFeatures
+from training.FRMW_UBAL.datapreparation.featureExtractor import extractFeatures
 from training.FRMW_UBAL.UbalNet import loadModel
 from sklearn.externals import joblib
 import cv2
@@ -29,7 +29,7 @@ def blackedImages(path):
     for i in range(1, 10):
         imgpathL = path + str(i) + "l.ppm"
         imgpathR = path + str(i) + "r.ppm"
-        print(imgpathL)
+        #print(imgpathL)
         imgL = cv2.imread(imgpathL)
         imgR = cv2.imread(imgpathR)
 
@@ -91,7 +91,7 @@ def testGainFields(pathToSave, imagespath, way="v", neuron=1):
     return np.array(resultActs), np.array(emResultActs)
 
 def plotGainModulations(results, neuron):
-    print(results.shape)
+
     fig, ax = plt.subplots(3, 3, figsize=(12, 12))
     fig.subplots_adjust(.05, .05, .95, .95)
     rcParams['axes.labelcolor'] = 'red'
@@ -126,7 +126,8 @@ def plotGainModulations(results, neuron):
     for s1 in range(results.shape[1]):
         sizesTotal = []
         sizesEmp   = []
-        maxResponse = max( max(results[:,s1, 0]), max(results[:,s1, 1]))
+        maxResponse = 1 #max( max(results[:,s1, 0]), max(results[:,s1, 1]))
+        #print(maxResponse)
         for s0 in range(results.shape[0]):
             sizesTotal.append((results[s0, s1, 0]/maxResponse)*diameter)
             sizesEmp.append((results[s0, s1, 1]/maxResponse)*diameter)
@@ -140,11 +141,11 @@ def plotGainModulations(results, neuron):
         ax[s1//3][s1%3].scatter(pointsX, pointsY, s=sizesEmp, facecolors='b', edgecolors='b')
         #ax[s1 // 3][s1 % 3].scatter([0], [0], s=sizesEmp, facecolors='g', edgecolors='g')
 
-
         identf = plt.imread("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/vizualizer/images/{}.png".format(s1+1))
         imscatter(-40, 20, identf, ax[s1//3][s1%3])
-        ax[s1 // 3][s1 % 3].set_title(titles[s1], x=-0.1, fontname="Times New Roman",fontweight="bold")
+        ax[s1 // 3][s1 % 3].set_title(titles[s1], x=-0.1, fontname="Times New Roman", fontweight="bold")
 
+    plt.savefig("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/vizualizer/gainNeurons/v1.1/{}_neuron_gain_mod_v1.1.png".format(neuron))
     plt.show()
 
 def gainModulations(activations, emActivations):
@@ -184,7 +185,8 @@ if __name__ == '__main__':
     ###     activations, emActivations = testGainFields(savepath, imagespath, neuron=neuron)
     ###     results = gainModulations(activations, emActivations)
     ###     plotGainModulations(results, neuron)
-
-    activations, emActivations = testGainFields(savepath, imagespath, neuron=9)
-    results = gainModulations(activations, emActivations)
-    plotGainModulations(results, 9)
+    neuron = 0
+    for neuron in range(0, 15):
+        activations, emActivations = testGainFields(savepath, imagespath, neuron=neuron)
+        results = gainModulations(activations, emActivations)
+        plotGainModulations(results, neuron)

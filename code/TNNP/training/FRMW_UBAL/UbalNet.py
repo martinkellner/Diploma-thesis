@@ -1,4 +1,4 @@
-from training.FRMW_UBAL.DataPreparation import getData, splitDataSetToTestAndTrain, datasetToXY
+from training.FRMW_UBAL.DataPreparation import *
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -6,8 +6,9 @@ import pandas as pd
 import time
 import datetime
 from sklearn.externals import joblib
-from mpl_toolkits import mplot3d
+#from mpl_toolkits import mplot3d
 import math
+from training.FRMW_UBAL.populationCoder import *
 
 class UbalNet:
 
@@ -20,6 +21,9 @@ class UbalNet:
         self.b2 = None
         self.d1 = None
         self.d2 = None
+        self.e = None
+        self.r = None
+        self.threshold = None
 
         self.af = "sigmoid"
         self.alpha = None
@@ -51,8 +55,15 @@ class UbalNet:
         else:
             self.foldername = (path if path[-1] == '/' else path + '/') + name
 
-    def forward_prediction(self, input, weights, bias):
-        sum = np.dot(input, weights) + bias
+    def forward_prediction(self, input, weights, bias, divided=False, threshold=0):
+        sum = None
+        if divided and threshold != 0:
+            sum1 = np.dot(input[0:threshold], weights[0:threshold,:])
+            sum2 = np.dot(input[threshold:], weights[threshold:,:])
+            sum = (self.e*sum1) + (self.r*sum2) + bias
+        else:
+            sum = np.dot(input, weights) + bias
+
         return self.activation(sum), sum
 
     def forward_echo(self, prediction, weights, bias):
@@ -91,8 +102,11 @@ class UbalNet:
         np.save(self.foldername + "D_1.npy", self.d1)
         np.save(self.foldername + "D_2.npy", self.d2)
 
-    def predictForward(self, x):
-        hidd_step, sum = self.forward_prediction(x, self.W1, self.b1)
+    def predictForward(self, x, divided=False, threshold=None, e=None, r=None):
+        if divided:
+            self.e = e
+            self.r = r
+        hidd_step, sum = self.forward_prediction(x, self.W1, self.b1, divided=divided, threshold=threshold)
         self.last_forward_activation = hidd_step
         self.last_forward_sum = sum
         return self.forward_prediction(hidd_step, self.W2, self.b2)[0]
@@ -137,7 +151,10 @@ class UbalNet:
 
             for idx in indexs:
 
-                qhfp = self.forward_prediction(x_train[idx], self.W1, self.b1)[0]
+                if self.e is not None and self.r is not None:
+                    qhfp = self.forward_prediction(x_train[idx], self.W1, self.b1, divided=True, threshold=self.threshold)[0]
+                else:
+                    qhfp = self.forward_prediction(x_train[idx], self.W1, self.b1)[0]
                 pofe = self.forward_echo(qhfp, self.M2, self.d2)
 
                 qofp = self.forward_prediction(qhfp, self.W2, self.b2)[0]
@@ -255,7 +272,7 @@ class UbalNet:
         if self.af == "tanh":
             return (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
 
-    def setHyperparamenters(self, alpha, epochs, numhidden, activationn, f_beta, b_beta, gammas):
+    def setHyperparamenters(self, alpha, epochs, numhidden, activationn, f_beta, b_beta, gammas, r=None, e=None, threshold=None):
         self.alpha = alpha
         self.epochs = epochs
         self.numHidden = numhidden
@@ -263,6 +280,9 @@ class UbalNet:
         self.b_beta = b_beta
         self.f_beta = f_beta
         self.gamma = gammas
+        self.e = e
+        self.r = r
+        self.threshold = threshold
 
     def get_last_activations(self, direction="Forward"):
         return self.last_forward_activation[0]
@@ -304,6 +324,7 @@ def loadModel(foldername, lists=False):
         if lists:
             print("[{}] - ".format(i + 1) + results[i])
         numbers = getNumbers(results[i])
+
         if sum(bestScore) > sum(numbers):
             bestScore = numbers
             best = results[i]
@@ -381,7 +402,6 @@ def getNumbers(line):
         j += 1
 
     return [float(x) for x in numbers]
-
 
 def findHyperParameters(x_train, y_train, x_test, y_test):
 
@@ -543,6 +563,29 @@ def pointsDistanceError():
     print("MAX error: {}, MIN Error:{}".format(max(diffArm), min(diffArm)))
     plt.show()
 
+def validateNewModel(testX, testY, model):
+    preds = list()
+    reals = list()
+
+    for i in range(testX.shape[0]):
+        real = decodeOutput(testY[i])
+        pred = decodeOutput(model.predictForward(testX[i])[0])
+
+        preds.append(pred)
+        reals.append(real)
+
+    agrserr = [0, 0, 0, 0, 0, 0, 0]
+    for i in range(len(preds)):
+        for j in range(7):
+            agrserr[j] += np.abs([reals[i][j]- preds[i][j]])
+
+    for i in range(7):
+        agrserr[i] /= len(preds)
+
+    print(agrserr)
+
+
+
 
 if __name__ == '__main__':
     '''
@@ -598,11 +641,42 @@ if __name__ == '__main__':
     #X, Y = getData("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/new_flt.csv", scale=True)
     #x_train, y_train, x_test, y_test = splitDataSetToTestAndTrain(X, Y, ratio=0.75)
     #findHyperParameters(x_train, y_train, x_test, y_test)
-    #model = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/ret2/")
-    #X = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testX_scl.csv").values[:, 1:]
-    #Y = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testY_scl.csv").values[:, 1:]
-    #validateModel(model, X, Y, version='ret')
+    model = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/ret2/")
+    X = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testX_scl.csv").values[:, 1:]
+    Y = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testY_scl.csv").values[:, 1:]
+    validateModel(model, X, Y, version='ret')
     #getPredDataset(X, Y, model, version="ret", pathtosave="/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/prediction/")
     #pointsDistanceError()
 
-    X, Y = getData("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/new_flt.csv", scale=True)
+    #X, Y = getData("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/new_flt.csv", scale=False)
+
+    #f_beta = [0, None, None]
+    #b_beta = [None, None, 0]
+    #gammas = [0, 0, 0, None]
+
+    #beta = 0.5
+    #b_beta[0] = beta
+    #b_beta[1] = 1 - beta
+    #f_beta[1] = 1 - beta
+    #f_beta[2] = beta
+    #gammas[3] = 0.75
+
+    #alpha = 0.05
+    #epochs = 700
+    #neurons = 32
+    #trainX, trainY, testX, testY = loadNewDataset1()
+    #trainX = np.load("tranX.npy")
+    #trainY = np.load("trinY.npy")
+    testX  = np.load("tesX.npy")
+    testY  = np.load("tesY.npy")
+
+    #print(trainX.shape, trainY.shape)
+    #print(trainX.shape, trainY.shape)
+    #test = UbalNet("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/ret4/", "test_{}_{}_{}_{}_{}".format(alpha, epochs, neurons, beta, gammas[3]))
+    #test.setHyperparamenters(alpha, epochs, neurons, "sigmoid", f_beta, b_beta, gammas)
+    #test.fit(trainX, trainY, testX, testY, log=True)
+    # [array([6.81707768]), array([0.64855875]), array([14.52253842]), array([10.55740365]), array([17.80259667]), array([6.99817147]), array([6.38594363])]
+    #validateNewModel(testX, testY, test)
+
+    test = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/ret4/")
+    validateNewModel(testX, testY, test)
