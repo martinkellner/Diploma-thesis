@@ -40,8 +40,8 @@ class My_ICub {
         //void prepareDatasetFile(string path, double const angle);
         void test();
         //void randomHandWatchCollecting(string path, int startFrom, int total, int imagesCount, bool armSeen);
-        void randomLookWayCollecting(string path);
-        void collectData(string pathname);
+        void collectData1To1(string path);
+        void collectData2To1(string pathname);
         Vector getFixPointFromHeadConf(Vector headGAngles, bool takeImages, string savepath);
         Vector getBPointFromHandConf(Vector handGAngles, bool createBox);
     string vectorDataToString(Vector vector);
@@ -134,7 +134,7 @@ protected:
 
     void getCurrentAyesAngles(Vector &pOf);
 
-    void disignChanges(Vector of, Vector &pOf);
+    void designChanges(Vector of, Vector &pOf);
 };
 
 #endif

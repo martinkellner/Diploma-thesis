@@ -6,6 +6,8 @@ import numpy as np
 import cv2
 #from sklearn.preprocessing import scale
 from training.FRMW_UBAL.populationCoder import *
+from training.FRMW_UBAL.UbalNet import *
+from training.FRMW_UBAL.populationCoder import *
 
 def scaleDataVector(X):
     scaler = StandardScaler().fit(X)
@@ -14,11 +16,10 @@ def scaleDataVector(X):
 def scaleDataSet(dataset):
     scaler = MinMaxScaler(feature_range=(0, 1))
     dataset[dataset.columns] = scaler.fit_transform(dataset[dataset.columns])
-    joblib.dump(scaler, "/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/scaler/sc4.pkl")
-    dataset.to_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/last_saved_scaled_3.csv")
+    joblib.dump(scaler, "/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/scaler/sc5.pkl")
+    dataset.to_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/last_saved_scaled_5.csv")
 
     return dataset
-
 
 def readDataset(path):
     whlData = pd.read_csv(path, sep=',')
@@ -83,8 +84,6 @@ def splitDataSetToTestAndTrain(X, Y, ratio=0.7):
 
     return X[list(train_idx)], Y[list(train_idx)], X[list(test_idx)], Y[list(test_idx)]
 
-
-
 def getData(path, scale=True):
     dataset = readDataset(path)
     if scale:
@@ -92,10 +91,10 @@ def getData(path, scale=True):
     return datasetToXY(dataset)
 
 def mergePointsWithPredictions(version="ret"):
-    if version != "ret":
-        df_test = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/prediction/real_datasetv2.csv")
-        df_real = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/new_flt.csv")
-        df_points = pd.read_csv("/home/martin/testing/ret_pointsv2.csv")
+    if version == "1-1":
+        df_test = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/1-1v2/_real.csv_u")
+        df_real = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/1-1v2/datasetv2.3.csv")
+        df_points = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/1-1v2/points.csv")
 
 
         test_data = df_test[['I0','I1','I2','O0','O1','O2','O3','O4','O5','O6']]
@@ -104,36 +103,71 @@ def mergePointsWithPredictions(version="ret"):
         df_new = pd.DataFrame(columns=['h1', 'h2', 'h3', 'a1', 'a2', 'a3', 'f1', 'f2', 'f3', 'x1', 'x2', 'x3'])
 
         for i in range(test_data.shape[0]):
+            found = False
             for j in range(real_data.shape[0]):
                 if np.array_equal(np.around(test_data.iloc[i], 4), np.around(real_data.iloc[j], 4)):
                     df_new.loc[i] = np.concatenate((df_points.iloc[i].values, df_real.iloc[j][['x1', 'x2', 'x3', 'y1', 'y2', 'y3']].values), axis=0).tolist()
                     print("{} - DONE!".format(i+1))
+                    found = True
                     break
+            if not found:
+                print(("{}. sample not found".format(i)))
 
-        df_new.to_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/prediction/PointsToCompared.csv")
+        df_new.to_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/1-1v2/PointsToCompared.csv")
 
-    else:
-        df_test = pd.read_csv(
-            "/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/prediction/real_datasetv2.csv")
-        df_real = pd.read_csv(
-            "/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/new_flt.csv")
-        df_points = pd.read_csv("/home/martin/data/testing/ret_pointsv2.csv")
+    elif version == "ret":
+        df_test = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/results/2-1v1/real_datasetv2.csv")
+        df_real = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/results/2-1v1/new_flt.csv")
+        df_points = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/results/2-1v1/21v_ret_point.csv")
 
         test_data = df_test[['I0', 'I1', 'I2', 'O0', 'O1', 'O2', 'O3', 'O4', 'O5', 'O6']]
         real_data = df_real[['I1', 'I2', 'I3', 'O1', 'O2', 'O3', 'O4', 'O5', 'O6', 'O7']]
 
-        df_new = pd.DataFrame(columns=['a1', 'a2', 'a3', 'h1', 'h2', 'h3', 'f1', 'f2', 'f3'])
+        df_new = pd.DataFrame(columns=['a1', 'a2', 'a3', 'h1', 'h2', 'h3', 'f1', 'f2', 'f3', 'x1', 'x2', 'x3'])
 
         for i in range(test_data.shape[0]):
+            found = False
             for j in range(real_data.shape[0]):
-                if np.array_equal(np.around(test_data.iloc[i], 4), np.around(real_data.iloc[j], 4)):
+                if np.array_equal(np.around(test_data.iloc[i], 2), np.around(real_data.iloc[j], 2)):
+                    df_new.loc[i] = np.concatenate(
+                        (df_points.iloc[i].values, df_real.iloc[j][['FX', 'FY', 'FZ', 'E1', 'E2', 'E3']].values),
+                        axis=0).tolist()
+                    print("{} - DONE!".format(i + 1))
+                    found = True
+                    break
+            if not found:
+                print("Not found!")
+
+        df_new.to_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/results/2-1v1/PointsToComparedv2.csv")
+    elif version == "ret2":
+        df_test = np.load("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/saved_dataset/4_xtes.npy")
+        df_real = pd.read_csv(
+            "/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/new_flt.csv")
+
+        df_points = pd.read_csv("/home/martin/data/testingV2/ret_point.csv")
+        df_new = pd.DataFrame(columns=['a1', 'a2', 'a3', 'h1', 'h2', 'h3', 'f1', 'f2', 'f3'])
+
+        real_data = df_real[['I1', 'I2', 'I3', 'I4', 'I5', 'I7', 'I8']]
+        inpNeurons = [10, 12, 8, 32, 28, 32, 28]
+        inpWidths = [4, 5, 4, 8, 6, 8, 6]
+
+        for i in range(df_test.shape[0]):
+            found = False
+            for j in range(real_data.shape[0]):
+                testXs = np.asarray(decodeInput(df_test[i,:], inpNeurons, inpWidths))
+                print(np.around(testXs, 0), np.around(real_data.iloc[j].values, 0))
+
+                if np.array_equal(np.around(testXs[:2], 1), np.around(real_data.iloc[j].values[:2], 1)) and np.array_equal(np.around(testXs[2:], 0), np.around(real_data.iloc[j].values[2:], 0)):
                     df_new.loc[i] = np.concatenate(
                         (df_points.iloc[i].values, df_real.iloc[j][['FX', 'FY', 'FZ']].values),
                         axis=0).tolist()
                     print("{} - DONE!".format(i + 1))
-                    break
-        df_new.to_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/prediction/PointsToComparedv2.csv")
+                    found = True
 
+            if not found:
+                print("Not found!")
+        df_new.to_csv(
+            "/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/prediction/PointsToCompareV3.csv")
 
 def rescaleImages(pathtodataset):
     dataset = pd.read_csv(pathtodataset)
@@ -196,47 +230,47 @@ def prepareNewDataset():
     testX.to_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/retinal_image/x_test.csv")
     testY.to_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/retinal_image/y_test.csv")
 
+def inputCoder(inputs, neurons, widths):
+    titlPeaks = uniformPeakPlacement(-20, 10, neurons[0])
+    versionPeaks = uniformPeakPlacement(-30, 30, neurons[1])
+    vergencePeaks = uniformPeakPlacement(17, 41, neurons[2])
+    xPeaks = uniformPeakPlacement(0, 320, neurons[3])
+    yPeaks = uniformPeakPlacement(0, 280, neurons[4])
+    # sizePeaks = uniformPeakPlacement(50, 2050, 42)
 
-titlPeaks = uniformPeakPlacement(-20, 10, 3)
-versionPeaks = uniformPeakPlacement(-30, 30, 6)
-vergencePeaks = uniformPeakPlacement(17, 41, 6)
-xPeaks = uniformPeakPlacement(0, 320, 32)
-yPeaks = uniformPeakPlacement(0, 280, 28)
-#sizePeaks = uniformPeakPlacement(50, 2050, 42)
-
-def inputCoder(inputs):
-    titl = gaussianPopulationCoding(inputs[0], titlPeaks, w=13, h=1)
-    version = gaussianPopulationCoding(inputs[1], versionPeaks, w=15, h=1)
-    vergence = gaussianPopulationCoding(inputs[2], vergencePeaks, w=5, h=1)
+    titl = gaussianPopulationCoding(inputs[0], titlPeaks, w=widths[0], h=1)
+    version = gaussianPopulationCoding(inputs[1], versionPeaks, w=widths[1], h=1)
+    vergence = gaussianPopulationCoding(inputs[2], vergencePeaks, w=widths[2], h=1)
     if len(inputs) > 3:
-        x1 = gaussianPopulationCoding(inputs[3], xPeaks, w=13, h=1)
-        x2 = gaussianPopulationCoding(inputs[6], xPeaks, w=13, h=1)
-        y1 = gaussianPopulationCoding(inputs[4], yPeaks, w=12, h=1)
-        y2 = gaussianPopulationCoding(inputs[7], yPeaks, w=12, h=1)
+        x1 = gaussianPopulationCoding(inputs[3], xPeaks, w=widths[3], h=1)
+        x2 = gaussianPopulationCoding(inputs[6], xPeaks, w=widths[3], h=1)
+        y1 = gaussianPopulationCoding(inputs[4], yPeaks, w=widths[4], h=1)
+        y2 = gaussianPopulationCoding(inputs[7], yPeaks, w=widths[4], h=1)
 #       s1 = gaussianPopulationCoding(inputs[5], sizePeaks, w=42, h=1)
-#      s2 = gaussianPopulationCoding(inputs[8], sizePeaks, w=50, h=1)
+#       s2 = gaussianPopulationCoding(inputs[8], sizePeaks, w=50, h=1)
 
         #WARNING: consider adding of sizes
         return titl, version, vergence, x1, y1, x2, y2
 
     return titl, version, vergence
 
-o1Peaks = uniformPeakPlacement(-95, -63, 10)
-o2Peaks = uniformPeakPlacement(22, 26, 2)
-o3Peaks = uniformPeakPlacement(18, 80, 6)
-o4Peaks = uniformPeakPlacement(60, 107, 6)
-o5Peaks = uniformPeakPlacement(-90, 90, 18)
-o6Peaks = uniformPeakPlacement(-21, 1, 3)
-o7Peaks = uniformPeakPlacement(-21, 7, 4)
+def outputCoder(outputs, neurons, widths):
+    o1Peaks = uniformPeakPlacement(-95, -63, neurons[0])
+    o2Peaks = uniformPeakPlacement(22, 26, neurons[1])
+    o3Peaks = uniformPeakPlacement(18, 80, neurons[2])
+    o4Peaks = uniformPeakPlacement(60, 107, neurons[3])
+    o5Peaks = uniformPeakPlacement(-90, 90, neurons[4])
+    o6Peaks = uniformPeakPlacement(-21, 1, neurons[5])
+    o7Peaks = uniformPeakPlacement(-21, 7, neurons[6])
 
-def outputCoder(outputs):
-    o1 = gaussianPopulationCoding(outputs[0], o1Peaks, w=5, h=1)
-    o2 = gaussianPopulationCoding(outputs[1], o2Peaks, w=4, h=1)
-    o3 = gaussianPopulationCoding(outputs[2], o3Peaks, w=12, h=1)
-    o4 = gaussianPopulationCoding(outputs[3], o4Peaks, w=12, h=1)
-    o5 = gaussianPopulationCoding(outputs[4], o5Peaks, w=12, h=1)
-    o6 = gaussianPopulationCoding(outputs[5], o6Peaks, w=5, h=1)
-    o7 = gaussianPopulationCoding(outputs[6], o7Peaks, w=5, h=1)
+    o1 = gaussianPopulationCoding(outputs[0], o1Peaks, w=widths[0], h=1)
+    o2 = gaussianPopulationCoding(outputs[1], o2Peaks, w=widths[1], h=1)
+    o3 = gaussianPopulationCoding(outputs[2], o3Peaks, w=widths[2], h=1)
+    o4 = gaussianPopulationCoding(outputs[3], o4Peaks, w=widths[3], h=1)
+    o5 = gaussianPopulationCoding(outputs[4], o5Peaks, w=widths[4], h=1)
+    o6 = gaussianPopulationCoding(outputs[5], o6Peaks, w=widths[5], h=1)
+    o7 = gaussianPopulationCoding(outputs[6], o7Peaks, w=widths[6], h=1)
+
     return o1, o2, o3, o4, o5, o6, o7
 
 def loadNewDataset():
@@ -311,10 +345,13 @@ def loadNewDataset():
 
     return np.array(trainXNew), np.array(trainYNew), np.array(testXNew), np.array(testYNew)
 
-def loadNewDataset1():
+def loadNewDataset1(inpNeurons, inpWidhts, outNeurons, outWidhts):
     dataset = readDataset("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/new_flt.csv")
     X, Y = datasetToXY(dataset)
     xtrn, ytrn, xtes, ytes = splitDataSetToTestAndTrain(X, Y, ratio=0.80)
+
+    np.save("x_test_last.npy", xtes)
+    np.save("y_test_last.npy", ytes)
 
     xtrnN = list()
     ytrnN = list()
@@ -323,43 +360,124 @@ def loadNewDataset1():
 
     for i in range(xtrn.shape[0]):
         #WARNING: Consider adding of sizes
-        titl, version, vergence, x1, y1, x2, y2 = inputCoder(xtrn[i])
+        #if i == 5:
+            #print(xtrn[i])
+            #print(ytrn[i])
+        titl, version, vergence, x1, y1, x2, y2 = inputCoder(xtrn[i], inpNeurons, inpWidhts)
         inp = titl + version + vergence + x1 + y1 + x2 + y2
         xtrnN.append(inp)
 
-        o1, o2, o3, o4, o5, o6, o7 = outputCoder(ytrn[i])
+        o1, o2, o3, o4, o5, o6, o7 = outputCoder(ytrn[i], outNeurons, outWidhts)
         inp = o1 + o2 + o3 + o4 + o5 + o6 + o7
         ytrnN.append(inp)
 
     for i in range(xtes.shape[0]):
-        titl, version, vergence, x1, y1, x2, y2 = inputCoder(xtes[i])
+        titl, version, vergence, x1, y1, x2, y2 = inputCoder(xtes[i], inpNeurons, inpWidhts)
         inp = titl + version + vergence + x1 + y1 + x2 + y2
         xtesN.append(inp)
 
-        o1, o2, o3, o4, o5, o6, o7 = outputCoder(ytes[i])
+        o1, o2, o3, o4, o5, o6, o7 = outputCoder(ytes[i], outNeurons, outWidhts)
         inp = o1 + o2 + o3 + o4 + o5 + o6 + o7
         ytestN.append(inp)
 
     return np.array(xtrnN), np.array(ytrnN), np.array(xtesN), np.array(ytestN)
 
-def decodeOutput(output):
-    o1 = output[:10]
-    o2 = output[10:12]
-    o3 = output[12:18]
-    o4 = output[18:24]
-    o5 = output[24:42]
-    o6 = output[42:45]
-    o7 = output[45:]
+'''
+Decoding output from population coding back to real values
+Outputs: Particular hand angles
+'''
+def decodeOutput(output, neurons, widths):
+    o1Peaks = uniformPeakPlacement(-95, -63, neurons[0])
+    o2Peaks = uniformPeakPlacement(22, 26, neurons[1])
+    o3Peaks = uniformPeakPlacement(18, 80, neurons[2])
+    o4Peaks = uniformPeakPlacement(60, 107, neurons[3])
+    o5Peaks = uniformPeakPlacement(-90, 90, neurons[4])
+    o6Peaks = uniformPeakPlacement(-21, 1, neurons[5])
+    o7Peaks = uniformPeakPlacement(-21, 7, neurons[6])
 
-    o1 = gaussianPopulationDecoding(o1, o1Peaks, 1, 5)
-    o2 = gaussianPopulationDecoding(o2, o2Peaks, 1, 4)
-    o3 = gaussianPopulationDecoding(o3, o3Peaks, 1, 12)
-    o4 = gaussianPopulationDecoding(o4, o4Peaks, 1, 12)
-    o5 = gaussianPopulationDecoding(o5, o5Peaks, 1, 12)
-    o6 = gaussianPopulationDecoding(o6, o6Peaks, 1, 5)
-    o7 = gaussianPopulationDecoding(o7, o7Peaks, 1, 5)
+    outputs = []
+    rmIdx = 0
+    for i in range(len(neurons)):
+        outputs.append(output[rmIdx:rmIdx+neurons[i]])
+        rmIdx += neurons[i]
+
+    o1 = gaussianPopulationDecoding(outputs[0], o1Peaks, 1, widths[0])
+    o2 = gaussianPopulationDecoding(outputs[1], o2Peaks, 1, widths[1])
+    o3 = gaussianPopulationDecoding(outputs[2], o3Peaks, 1, widths[2])
+    o4 = gaussianPopulationDecoding(outputs[3], o4Peaks, 1, widths[3])
+    o5 = gaussianPopulationDecoding(outputs[4], o5Peaks, 1, widths[4])
+    o6 = gaussianPopulationDecoding(outputs[5], o6Peaks, 1, widths[5])
+    o7 = gaussianPopulationDecoding(outputs[6], o7Peaks, 1, widths[6])
 
     return o1, o2, o3, o4, o5, o6, o7
+
+def decodeInput(inputs, neurons, widths):
+    titlPeaks = uniformPeakPlacement(-20, 10, neurons[0])
+    versionPeaks = uniformPeakPlacement(-30, 30, neurons[1])
+    vergencePeaks = uniformPeakPlacement(17, 41, neurons[2])
+    xPeaks = uniformPeakPlacement(0, 320, neurons[3])
+    yPeaks = uniformPeakPlacement(0, 280, neurons[4])
+
+    inputsValues = []
+    rmIdx = 0
+    for i in range(len(neurons)):
+        inputsValues.append(inputs[rmIdx:rmIdx+neurons[i]])
+        rmIdx += neurons[i]
+
+    titl = gaussianPopulationDecoding(inputsValues[0], titlPeaks, w=widths[0], h=1)
+    version = gaussianPopulationDecoding(inputsValues[1], versionPeaks, w=widths[1], h=1)
+    vergence = gaussianPopulationDecoding(inputsValues[2], vergencePeaks, w=widths[2], h=1)
+    x1 = gaussianPopulationDecoding(inputsValues[3], xPeaks, w=widths[3], h=1)
+    y1 = gaussianPopulationDecoding(inputsValues[4], yPeaks, w=widths[4], h=1)
+    x2 = gaussianPopulationDecoding(inputsValues[5], xPeaks, w=widths[5], h=1)
+    y2 = gaussianPopulationDecoding(inputsValues[6], yPeaks, w=widths[6], h=1)
+
+    return titl, version, vergence, x1, y1, x2, y2
+
+def getPredDataset2():
+    datasetName = "find2"
+    model = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/results/2-1v2np/")
+    print(model.getName())
+
+    trainX, trainY, testX, testY = loadSavedDataset(datasetName)
+
+    inpNeurons = [10, 12, 8, 32, 28, 32, 28]
+    inpWidths = [4, 5, 4, 8, 6, 8, 6]
+    outNeurons = [6, 3, 10, 11, 20, 4, 5]
+    outWidth = [6, 1.5, 7, 7, 10, 6, 7]
+    print(trainX.shape, trainY.shape, testX.shape, testY.shape)
+
+    data = []
+    for i in range(testY.shape[0]):
+        codedInput = testX[i,:]
+        codedOutput = testY[i,:]
+
+        predOutput = model.predictForward(codedInput)
+        predInput = model.predictBackward(codedOutput)
+
+        decodedPredOutput = decodeOutput(predOutput[0], outNeurons, outWidth)
+        decodedPredInput  = decodeInput(predInput[0], inpNeurons, inpWidths)
+
+        out = list(decodedPredOutput)
+        inp = list(decodedPredInput)[0:3]
+        line = inp + out
+        data.append(line)
+
+    dataframe = pd.DataFrame(data, columns=['I0', 'I1', 'I2', 'O0', 'O1', 'O2', 'O3', 'O4', 'O5', 'O6'])
+    dataframe.to_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/results/2-1v2np/preDataset.csv")
+
+def filterDataset1To1():
+    dataset = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/datasetv2.2.csv")
+    new_dataset = pd.DataFrame(columns=dataset.columns)
+
+    data = dataset.values
+
+    for sample in data:
+        count = new_dataset.loc[(new_dataset["I1"] == sample[0]) & (new_dataset["I2"] == sample[2]) & (new_dataset["I3"] == sample[5])].values.shape[0]
+        if count == 0:
+            new_dataset = new_dataset.append(pd.Series(sample, index=new_dataset.columns), ignore_index=True)
+
+    new_dataset.to_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/datasetv2.3.csv")
 
 if __name__ == '__main__':
     #mergePointsWithPredictions(version="ret")
@@ -368,4 +486,12 @@ if __name__ == '__main__':
     #loadNewDataset()
 
     #loadNewDataset1()
+    #getPredDataset2()
+    #mergePointsWithPredictions(version="ret2")
+    #filterDataset1To1()
+
+    #mergePointsWithPredictions("ret")
+    #pointsDistanceError("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/results/2-1v1/PointsToComparedv2.csv")
+    #getPredDataset2()
+
     pass

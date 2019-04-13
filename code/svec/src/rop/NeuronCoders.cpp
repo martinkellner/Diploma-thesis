@@ -9,8 +9,8 @@ using namespace std;
 
 
 //v rangeMin aj v rangeMax bude neuron
-void NeuronCoders::uniformPeakDistribution(double rangeMin, double rangeMax, unsigned int numOfNeurons, double peaksPositions[]) {
-	double step = (rangeMax - rangeMin) / (numOfNeurons - 1);
+void NeuronCoders::uniformPeakDistribution(double rangeMin, double rangeMax, unsigned int numOfNeurons, double peaksP ositions[]) {
+	double step = ( rangeMax - rangeMin) / (numOfNeurons - 1);
 	double val = rangeMin;
 	for (unsigned int i=0; i<numOfNeurons; i++) {
 		peaksPositions[i] = val;

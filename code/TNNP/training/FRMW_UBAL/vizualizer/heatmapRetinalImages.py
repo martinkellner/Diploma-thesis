@@ -37,11 +37,11 @@ def processImagesToMap(path):
 
         #cbar_ax = fig.add_axes([1, .3, .03, .4])
         sns.heatmap(rMap, vmax=12000)
-        plt.savefig("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/vizualizer/plots/right_eye_hm.png")
+        plt.savefig("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/vizualizer/plots/right_eye_hm4.png")
         plt.close()
         sns.heatmap(lMap, vmax=12000)
-        plt.savefig("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/vizualizer/plots/left_eye_hm.png")
+        plt.savefig("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/vizualizer/plots/left_eye_hm4.png")
         #plt.show()
 
 if __name__ == '__main__':
-    processImagesToMap("/home/martin/data/testing/")
+    processImagesToMap("/home/martin/data/newTesting/2-1v2np/")

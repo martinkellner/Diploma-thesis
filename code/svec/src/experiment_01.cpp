@@ -378,8 +378,6 @@ void trainFANN(string networkName, string trainFile, string paramsFile, string a
 
 }
 
-
-
 //read test file
 //for every pattern compute error
 //translate desired and real output to angle and compare

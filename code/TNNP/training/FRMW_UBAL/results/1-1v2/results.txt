@@ -1,0 +1,38 @@
+best model: /home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/1-1v2/0.15_15_200_0.5_0.9_2019-04-10_20:02:00/ - 57
+            /home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/1-1v2/0.1_25_200_0.5_0.9_2019-04-10_19:29:10/  - 56
+            /home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/1-1v2/0.1_20_200_0.2_0.9_2019-04-10_19:13:36/  - 57 -B 94 epoch
+            /home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/1-1v2/0.1_10_200_0.5_0.9_2019-04-10_18:47:22/  - 58
+            /home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/1-1v2/0.05_25_200_0.2_0.9_2019-04-10_18:29:50/ - 58
+            /home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/1-1v2/0.05_20_200_0.5_0.9_2019-04-10_18:18:46/ - 59
+            /home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/1-1v2/0.05_15_200_0.5_0.75_2019-04-10_18:05:18/ - 59
+            /home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/1-1v2/0.05_10_200_0.7_0.75_2019-04-10_17:54:37/ - 59
+            /home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/1-1v2/0.05_10_200_0.5_0.75_2019-04-10_17:48:59/ - 57
+
+Best:
+
+I0     4.760141
+I1     4.794356
+I2     2.968907
+O0     7.888183
+O1     4.940288
+O2     6.832333
+O3     2.327172
+O4    15.827793
+O5     4.673350
+O6     2.068214
+
+12.52340497770487, 44.557331667281396, 57.08073664498627)
+/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/1-1v2/0.1_20_200_0.2_0.9_2019-04-10_19:13:36/
+
+rg distance error against fix point - backward: 0.0269 m.
+Arg distance error against fix point - forward: 0.043 m.
+Arg distance error against palm points - forward: 0.0403 m
+The number of test under: 0.0215 - 29
+The number of test under: 0.043 - 130
+The number of test under: 0.0645 - 70
+The number of test over 0.0645 - 51
+MAX error: 0.0882116715746845, MIN Error:0.009370217233340946
+
+
+
+

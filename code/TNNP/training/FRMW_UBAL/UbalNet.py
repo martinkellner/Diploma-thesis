@@ -6,7 +6,7 @@ import pandas as pd
 import time
 import datetime
 from sklearn.externals import joblib
-#from mpl_toolkits import mplot3d
+from mpl_toolkits import mplot3d
 import math
 from training.FRMW_UBAL.populationCoder import *
 
@@ -55,15 +55,11 @@ class UbalNet:
         else:
             self.foldername = (path if path[-1] == '/' else path + '/') + name
 
-    def forward_prediction(self, input, weights, bias, divided=False, threshold=0):
-        sum = None
-        if divided and threshold != 0:
-            sum1 = np.dot(input[0:threshold], weights[0:threshold,:])
-            sum2 = np.dot(input[threshold:], weights[threshold:,:])
-            sum = (self.e*sum1) + (self.r*sum2) + bias
-        else:
-            sum = np.dot(input, weights) + bias
+    def getName(self):
+        return self.foldername
 
+    def forward_prediction(self, input, weights, bias, divided=False, threshold=0):
+        sum = np.dot(input, weights) + bias
         return self.activation(sum), sum
 
     def forward_echo(self, prediction, weights, bias):
@@ -328,10 +324,12 @@ def loadModel(foldername, lists=False):
         if sum(bestScore) > sum(numbers):
             bestScore = numbers
             best = results[i]
-
-        if (numbers[0] + numbers[2])<sum(bestFBScore):
-            bestFBScore = [numbers[0], numbers[2]]
-            bestFName = results[i]
+        try:
+            if (numbers[0] + numbers[2])<sum(bestFBScore):
+                bestFBScore = [numbers[0], numbers[2]]
+                bestFName = results[i]
+        except:
+            continue
 
     waitInput = "best" #input("Select model to load: ")
     if waitInput.isdigit():
@@ -368,7 +366,7 @@ def loadModel(foldername, lists=False):
         return ldNet
 
     else:
-        name = best[0:best.find(' ')]
+        name = waitInput
         dir = (foldername + name if foldername[-1] == '/' else foldername + '/' + name) + '/'
         ldNet = UbalNet(foldername, name, loaded=True)
         ldNet.W1 = np.load(dir + "W_1.npy")
@@ -408,17 +406,17 @@ def findHyperParameters(x_train, y_train, x_test, y_test):
     dfTestX = pd.DataFrame(x_test)
     dfTestY = pd.DataFrame(y_test)
 
-    dfTestX.to_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testX_scl.csv")
-    dfTestY.to_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testY_scl.csv")
+    dfTestX.to_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testX_scl3.csv")
+    dfTestY.to_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testY_scl3.csv")
 
     f_beta = [0, None, None]
     b_beta = [None, None, 0]
     gammas = [0, 0, 0, None]
 
-    for aplha in [0.08, 0.1, 0.12]:
-        for neurons in [10, 12, 15, 17]:
-            for beta in [.5, .7, .8]:
-                for gamma in [0.5, 0.7, 0.9]:
+    for aplha in [0.08]:
+        for neurons in [15, 17, 20, 25]:
+            for beta in [.2, .5, .7, 0.9]:
+                for gamma in [0.25, 0.5, 0.75, 0.9]:
                     name = str(aplha) + "_" + str(neurons) + "_" + str(200) + "_" + str(beta) + "_" + str(gamma)
                     #print("Training - " + name)
                     b_beta[0] = beta
@@ -426,9 +424,16 @@ def findHyperParameters(x_train, y_train, x_test, y_test):
                     f_beta[1] = 1 - beta
                     f_beta[2] = beta
                     gammas[3] = gamma
-                    un1 = UbalNet("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/ret2/", name)
+                    un1 = UbalNet("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/1-1v2/", name)
                     un1.setHyperparamenters(aplha, 200, neurons, "sigmoid", f_beta, b_beta, gammas)
-                    un1.fit(x_train, y_train, x_test, y_test, log=False)
+                    un1.fit(x_train, y_train, x_test, y_test, log=True)
+
+                    hyperparams = [aplha, neurons, beta, gamma]
+
+                    val = validateModel(un1, x_test, y_test, version="1-1")
+                    saveValidation(un1.getName(), validation=val, hyperparams=hyperparams, populationParams=[],
+                                   datasetName="1-1v4",
+                                   filename="/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/val1-1.txt")
 
 def getPredDataset(X, y, model, pathtosave=None, version="ret"):
     if version == "1-1":
@@ -445,7 +450,7 @@ def getPredDataset(X, y, model, pathtosave=None, version="ret"):
         dataR = np.array(dataR)
         dataP = np.array(dataP)
 
-        scaler = joblib.load("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/scaler/sc1.pkl")
+        scaler = joblib.load("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/scaler/sc5.pkl")
 
         unSclDataR = scaler.inverse_transform(dataR)
         unSclDataP = scaler.inverse_transform(dataP)
@@ -490,49 +495,54 @@ def getPredDataset(X, y, model, pathtosave=None, version="ret"):
 
         datasetDf.to_csv(pathtosave + "real_datasetv2.csv")
         predDatasetDf.to_csv(pathtosave + "pred_datasetv2.csv")
+        return  invSclDataset, invSclPredDataset
 
 def validateModel(model, X, Y, version):
     if version == "1-1":
-        _, _, real, pred = getPredDataset(X, Y, model, '/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/prediction/2.NET')
+        _, _, real, pred = getPredDataset(X, Y, model, '/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/1-1v2/', version=version)
         diff = np.abs(real - pred)
         print("Avarage mean error: (abs(targer - prediction))")
-        print(np.mean(diff))
+        diff = np.mean(diff)
+        print(diff)
+        return diff, np.sum(diff[0:3]), np.sum(diff[3:]), np.sum(diff)
 
     elif version == "ret":
-        targetDataset = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/prediction/real_dataset.csv")
-        predictionDataset = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/prediction/pred_dataset.csv")
-        targer = targetDataset.values[:, 1:]
-        prediction = predictionDataset.values[:, 1:]
-
+        dataset, predDataset = getPredDataset(X, Y, pathtosave="/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/results/2-1v1/", model=model, version="ret")
         print("### Avarage error for each features:")
-        for i in range(targer.shape[1]):
+        for i in range(dataset.shape[1]):
             if i < 9:
-                print("I{} - abs err: {} ".format(i+1, np.mean(np.abs(targer[:, i] - prediction[:, i]))))
+                print("I{} - abs err: {} ".format(i+1, np.mean(np.abs(dataset[:, i] - predDataset[:, i]))))
             else:
-                print("O{} - abs err: {} ".format(i-8, np.mean(np.abs(targer[:, i] - prediction[:, i]))))
+                print("O{} - abs err: {} ".format(i-8, np.mean(np.abs(dataset[:, i] - predDataset[:, i]))))
 
         print("### MSE for forward and backward")
 
-def pointsDistanceError():
-    points = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/prediction/PointsToComparedv2.csv")
+def pointsDistanceError(path):
+    points = pd.read_csv(path)
     fixPoints = points[['f1', 'f2', 'f3']].values
+    palmPoints = points[['f1', 'f2', 'f3']].values + points[['x1', 'x2', 'x3']].values
+
     predHead = points[['h1', 'h2', 'h3']].values
     predArm = points[['a1', 'a2', 'a3']].values
 
     diffHead = []
     diffArm = []
-    diffX0Arm = []
+    diffPalm = []
+
+    print(fixPoints.shape, predArm.shape, predHead.shape, palmPoints.shape)
 
     for i in range(fixPoints.shape[0]):
         diffHead.append(np.linalg.norm(fixPoints[i] - predHead[i]))
         diffArm.append(np.linalg.norm(fixPoints[i] - predArm[i]))
+        diffPalm.append(np.linalg.norm(palmPoints[i] - predArm[i]))
 
     avgErrArm = np.around(np.mean(diffArm), 4)
     avgErrHead = np.around(np.mean(diffHead), 4)
+    avgErrHeadPalm = np.around(np.mean(diffPalm), 4)
 
-
-    print("Arg distance error - backward: {} m.".format(avgErrHead))
-    print("Arg distance error - forward: {} m.".format(avgErrArm))
+    print("Arg distance error against fix point - backward: {} m.".format(avgErrHead))
+    print("Arg distance error against fix point - forward: {} m.".format(avgErrArm))
+    print("Arg distance error against palm points - forward: {} m".format(avgErrHeadPalm))
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -540,7 +550,7 @@ def pointsDistanceError():
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
-
+    
     colors = ["#890000", "#e50000", "#ef6666", "#f7b2b2"]
     count = [0, 0, 0, 0]
     color = None
@@ -561,15 +571,35 @@ def pointsDistanceError():
 
     print("The number of test under: {} - {}\nThe number of test under: {} - {}\nThe number of test under: {} - {}\nThe number of test over {} - {}\n".format(avgErrArm/2, count[0], avgErrArm, count[1], avgErrArm*1.5, count[2], avgErrArm*1.5, count[3]))
     print("MAX error: {}, MIN Error:{}".format(max(diffArm), min(diffArm)))
+    # Uncomment to show the error 3D points plot
     plt.show()
+    plt.figure()
+    diffHead = np.multiply(diffHead, 100)
+    maxFixAngHeadError = math.ceil(max(diffHead))
 
-def validateNewModel(testX, testY, model):
+    n, bins, patches = plt.hist(diffHead, bins=np.arange(0, maxFixAngHeadError, 1), facecolor='blue', alpha=0.5)
+    plt.xlabel('Distance error (cm)')
+    plt.ylabel('Number of points')
+    plt.title(r'Histogram of Distance Error: Gaze fixation points')
+    plt.savefig("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/results/2-1v1/fixHist.png")
+
+    diffPalm = np.multiply(diffPalm, 100)
+    maxFixAngPalmError = math.ceil(max(diffPalm))
+    fig = plt.figure()
+    n, bins, patches = plt.hist(diffPalm, bins=np.arange(0, maxFixAngPalmError, 1), facecolor='blue', alpha=0.5)
+    plt.xlabel('Distance error (cm)')
+    plt.ylabel('Number of points')
+    plt.title(r'Histogram of Distance Error: Points of the centre of palm')
+    plt.savefig(
+        "/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/results/2-1v1/fixPalm.png")
+
+def validateNewModel(testX, testY, model, inpNeurons, intWidth, outNeurons, outWidth):
     preds = list()
     reals = list()
 
     for i in range(testX.shape[0]):
-        real = decodeOutput(testY[i])
-        pred = decodeOutput(model.predictForward(testX[i])[0])
+        real = decodeOutput(testY[i], neurons=outNeurons, widths=outWidth)
+        pred = decodeOutput(model.predictForward(testX[i])[0], neurons=outNeurons, widths=outWidth)
 
         preds.append(pred)
         reals.append(real)
@@ -582,9 +612,39 @@ def validateNewModel(testX, testY, model):
     for i in range(7):
         agrserr[i] /= len(preds)
 
-    print(agrserr)
+    return agrserr
 
+def saveDataset(xtrn, ytrn, xtes, ytes, name):
+    path = "/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/saved_dataset/" + name
+    np.save(path + "_{}.npy".format("xtrn"), xtrn)
+    np.save(path + "_{}.npy".format("ytrn"), ytrn)
+    np.save(path + "_{}.npy".format("xtes"), xtes)
+    np.save(path + "_{}.npy".format("ytes"), ytes)
 
+def loadSavedDataset(name):
+    path = "/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/saved_dataset/" + name
+    xtrn = np.load(path + "_{}.npy".format("xtrn"))
+    ytrn = np.load(path + "_{}.npy".format("ytrn"))
+    xtes = np.load(path + "_{}.npy".format("xtes"))
+    ytes = np.load(path + "_{}.npy".format("ytes"))
+
+    return xtrn, ytrn, xtes, ytes
+
+def saveValidation(modelName, hyperparams, populationParams, validation, datasetName, filename):
+
+    saveline = ""
+    saveline += modelName
+    for parm in hyperparams:
+        saveline += " " + parm.__repr__()
+
+    for parm in populationParams:
+        saveline += " " + parm.__repr__()
+
+    saveline += " " + datasetName
+    saveline += " " + validation.__repr__()
+
+    with open(filename, "a") as file:
+        print(saveline, file=file)
 
 
 if __name__ == '__main__':
@@ -601,24 +661,40 @@ if __name__ == '__main__':
     #bestModel = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models")
     #bestModel.af = "sigmoid"
 
-    #X, Y = getData()
+    #X, Y = getData("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/datasetv2.3.csv")
     #x_train, y_train, x_test, y_test = splitDataSetToTestAndTrain(X, Y)
+    #findHyperParameters(x_train, y_train, x_test, y_test)
 
     #un1 = UbalNet("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/", "best_hyp_0.08_12_500_0.5_0.9")
     #un1.setHyperparamenters(0.08, 300, 12, "sigmoid", [0, .5, .5], [.5, .5, 0], [0, 0, 0, .9])
     #un1.fit(x_train, y_train, x_test, y_test)
 
-    #bestModel = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models")
+    #x_test = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testX_scl2.csv").values[:,1:]
+    #y_test = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testY_scl2.csv").values[:,1:]
+
+    #bestModel = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/1-1v2/")
     #bestModel.af = "sigmoid"
 
-    #validateModel(un1, x_test, y_test)
+    #validateModel(bestModel, x_test, y_test, version="1-1")
+    #X, Y = getData("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/datasetv2.3.csv")
+    #x_train, y_train, x_test, y_test = splitDataSetToTestAndTrain(X, Y, ratio=0.85)
+    #print(x_test, y_test)
+    #saveDataset(x_train, y_train, x_test, y_test, "1-1v4")
+    #x_train, y_train, x_test, y_test = loadSavedDataset("1-1v4")
+    #findHyperParameters(x_train, y_train, x_test, y_test)
 
+    #/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/1-1v2/0.1_20_200_0.2_0.9_2019-04-10_19:13:36/
+    #model = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/1-1v2/")
+    #print(model.getName())
+
+    #validateModel(model, x_test, y_test, version="1-1")
 
     '''Validation'''
-    #model = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models")
+    #model = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/ret2/")
+    #print(model.getName())
     #model.test(X, y)
     ### Model name: best_hyp_0.08_12_500_0.5_0.9_2019-02-18_15:40:07
-    #validateModel(model, X, y)
+    #validateModel(model, None, None, version="ret")
     #pointsDistanceError()
 
     # find hyperparameters for ret version
@@ -641,15 +717,16 @@ if __name__ == '__main__':
     #X, Y = getData("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/new_flt.csv", scale=True)
     #x_train, y_train, x_test, y_test = splitDataSetToTestAndTrain(X, Y, ratio=0.75)
     #findHyperParameters(x_train, y_train, x_test, y_test)
-    model = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/ret2/")
-    X = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testX_scl.csv").values[:, 1:]
-    Y = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testY_scl.csv").values[:, 1:]
-    validateModel(model, X, Y, version='ret')
+    #model = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/1-1v2/")
+    #X = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testX_scl2.csv").values[:, 1:]
+    #Y = pd.read_csv("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/New_testY_scl2.csv").values[:, 1:]
+    #validateModel(model, X, Y, version='ret')
     #getPredDataset(X, Y, model, version="ret", pathtosave="/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/prediction/")
     #pointsDistanceError()
 
     #X, Y = getData("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/new_flt.csv", scale=False)
 
+    #0.05_700_28_0.5_0.7
     #f_beta = [0, None, None]
     #b_beta = [None, None, 0]
     #gammas = [0, 0, 0, None]
@@ -659,24 +736,110 @@ if __name__ == '__main__':
     #b_beta[1] = 1 - beta
     #f_beta[1] = 1 - beta
     #f_beta[2] = beta
-    #gammas[3] = 0.75
+    #gammas[3] = 0.7
 
     #alpha = 0.05
     #epochs = 700
-    #neurons = 32
-    #trainX, trainY, testX, testY = loadNewDataset1()
+    #neurons = 28
+    #inpNeurons = [10, 12, 8, 32, 28, 32, 28]
+    #inpWidths =  [5,  6,  5, 15, 13, 15, 13]
+
+    #o1 (-95, -63)
+    #o2 (22, 26)
+    #o3 (18, 80)
+    #o4 (60, 107)
+    #o5 (-90, 90)
+    #o6 (-21, 1)
+    #o7 (-21, 7)
+    #outNeurons = [5, 3,   7,    8,  10, 6, 7]
+    #outWidth =   [8, 1.5, 10,  11,  19, 4, 5]
+    #trainX, trainY, testX, testY = loadNewDataset1(inpNeurons, inpWidths, outNeurons, outWidth)
+    #saveDataset(trainX, trainY, testX, testY, datasetName)
+    #trainX, trainY, testX, testY = loadSavedDataset("{}".format(datasetName))
+
     #trainX = np.load("tranX.npy")
     #trainY = np.load("trinY.npy")
-    testX  = np.load("tesX.npy")
-    testY  = np.load("tesY.npy")
-
-    #print(trainX.shape, trainY.shape)
+    #testX  = np.load("tesX.npy")
+    #testY  = np.load("tesY.npy")
+    #test = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/ret4/")
     #print(trainX.shape, trainY.shape)
     #test = UbalNet("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/ret4/", "test_{}_{}_{}_{}_{}".format(alpha, epochs, neurons, beta, gammas[3]))
     #test.setHyperparamenters(alpha, epochs, neurons, "sigmoid", f_beta, b_beta, gammas)
     #test.fit(trainX, trainY, testX, testY, log=True)
     # [array([6.81707768]), array([0.64855875]), array([14.52253842]), array([10.55740365]), array([17.80259667]), array([6.99817147]), array([6.38594363])]
     #validateNewModel(testX, testY, test)
+    #test = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/ret4/", )
 
-    test = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/ret4/")
-    validateNewModel(testX, testY, test)
+    #hyperparams = [alpha, epochs, neurons, f_beta, b_beta, gammas]
+    #populationsParms = [inpNeurons, inpWidths, outNeurons, outWidth]
+    #val = validateNewModel(testX, testY, test, inpNeurons, inpWidths, outNeurons, outWidth)
+    #aveValidation(test.getName(), hyperparams, populationsParms, val, datasetName)
+
+    '''Best reconstruction
+    datasetName = "find2"
+
+    inpNeurons = [10, 12, 8, 32, 28, 32, 28]
+    inpWidths = [4, 5, 4, 8, 6, 8, 6]
+    outNeurons = [6, 3, 10, 11, 20, 4, 5]
+    outWidth = [6, 1.5, 7, 7, 10, 6, 7]
+    trainX, trainY, testX, testY = loadNewDataset1(inpNeurons, inpWidths, outNeurons, outWidth)
+    saveDataset(trainX, trainY, testX, testY, datasetName)
+
+    print(trainX.shape, trainY.shape, testX.shape, testY.shape)
+    best = UbalNet("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/ret4/", "test_{}_{}_{}_{}_{}".format(alpha, epochs, neurons, beta, gammas[3]))
+    best.setHyperparamenters(alpha, epochs, neurons, "sigmoid", f_beta, b_beta, gammas)
+    best.fit(trainX, trainY, testX, testY, log=True)
+    val = validateNewModel(testX, testY, best, inpNeurons, inpWidths, outNeurons, outWidth)
+    hyperparams = [alpha, epochs, neurons, f_beta, b_beta, gammas]
+    populationsParms = [inpNeurons, inpWidths, outNeurons, outWidth]
+    saveValidation(best.getName(), hyperparams, populationsParms, val, datasetName)
+    '''
+
+    inpNeurons = [10, 12, 8, 32, 28, 32, 28]
+    inpWidths = [4, 5, 4, 8, 6, 8, 6]
+    outNeurons = [6, 3, 10, 11, 20, 4, 5]
+    outWidth = [6, 1.5, 7, 7, 10, 6, 7]
+
+    f_beta = [0, None, None]
+    b_beta = [None, None, 0]
+    gammas = [0, 0, 0, None]
+
+    aplha = 0.12
+    neurons = 68
+    beta = 0.7
+    gamma = 0.9
+    epochs = 2000
+    b_beta[0] = beta
+    b_beta[1] = 1 - beta
+    f_beta[1] = 1 - beta
+    f_beta[2] = beta
+    gammas[3] = gamma
+
+    #X, Y = getData("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/results/2-1v1/new_flt.csv")
+    #x_train, y_train, x_test, y_test = splitDataSetToTestAndTrain(X, Y, ratio=0.85)
+    #saveDataset(x_train, y_train, x_test, y_test, "find2")
+    x_train, y_train, x_test, y_test = loadSavedDataset("find2")
+
+    un1 = UbalNet("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/exp/", "best")
+    un1.setHyperparamenters(aplha, epochs, neurons, "sigmoid", f_beta, b_beta, gammas)
+    un1.fit(x_train, y_train, x_test, y_test, log=True)
+
+    hyperparams = [aplha, epochs, neurons, f_beta, b_beta, gammas]
+    populationsParms = [inpNeurons, inpWidths, outNeurons, outWidth]
+    val = validateNewModel(x_test, y_test, un1, inpNeurons, inpWidths, outNeurons, outWidth)
+    saveValidation(un1.getName(), hyperparams, populationsParms, val, "find2", "/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/exp/exp.txt")
+
+
+    #hyperparams = [aplha, neurons, beta, gamma]
+    '''
+    #TODO: gain fields, pozbieraj body na validaciu, zisti distance error pre vyssie model hned
+
+    #bestModel = loadModel("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/results/2-1v1")
+    #_, _, x_test, y_test = loadSavedDataset("best_retv2")
+    #validateModel(bestModel, x_test, y_test, version="ret")
+    #saveValidation(un1.getName(), validation=val, hyperparams=hyperparams, populationParams=[],
+    #               datasetName="1-1v4",
+    #               filename="/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/val1-1.txt")
+
+    #TODO: pozbierat body pre best pc model, gain fields, hists, ...
+    '''

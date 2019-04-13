@@ -1,5 +1,6 @@
 import numpy as np
 import operator
+import matplotlib.pyplot as plt
 
 ### Inspired from Svec 20xx (TODO: replace xx with the correct value)
 def uniformPeakPlacement(minValue, maxValue, numberOfNeurons):
@@ -39,8 +40,37 @@ def gaussianPopulationDecoding(y, peaks, h, w):
 
     return res
 
+def plotImage(interval, peaks, w, h, encoded, real):
+
+
+    for p in range(len(peaks)):
+        x = []
+        y = []
+
+        for i in interval:
+            y.append(gaussian(i, h, w, peaks[p]))
+            x.append(i)
+
+        rp = plt.plot(x, y)
+        if encoded[p] > 0:
+            plt.plot(real, encoded[p], marker='o', markersize=10, color=rp[0].get_color())
+
+        plt.xlabel("Direction of movement (degrees)")
+        plt.ylabel("Activity (spikes/sec)")
+
 if __name__ == '__main__':
     #Testing
-    peaks = uniformPeakPlacement(-20, 10, 11)
-    enpop = gaussianPopulationCoding(100, peaks, 1, 10)
-    print(gaussianPopulationDecoding(enpop, peaks, 1, 10))
+
+    #enpop = gaussianPopulationCoding(100, peaks, 1, 10)
+    #print(gaussianPopulationDecoding(enpop, peaks, 1, 10))
+
+    # image
+    neurons = 5
+    w = 7
+    real = 12
+
+    peaks = uniformPeakPlacement(-30, 30, neurons)
+    print(peaks)
+    encoded = gaussianPopulationCoding(real, peaks, 1, w)
+    print(encoded)
+    plotImage(np.arange(-30, 30, 0.001), peaks, w, 1, encoded, real)

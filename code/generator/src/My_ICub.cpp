@@ -294,11 +294,16 @@ void My_ICub::setHeadAnglesAndMove(Vector pose) {
     }
 };
 
-void My_ICub::randomLookWayCollecting(string path) {
+void My_ICub::collectData1To1(string path) {
+    //Initialization
     getHeadController();
     getRobotGazeInteface();
     getArmController(RIGHT);
-    getDataFile(path);
+    if (getDataFile(path + "dataset.txt") != 1) {
+        printf("Cannot open dataset file %s!\n", (path + "dataset.txt").c_str());
+        return;
+    };
+
     setRandomVergenceAngle();
     srand(NULL);
 
@@ -308,14 +313,13 @@ void My_ICub::randomLookWayCollecting(string path) {
     int direction, steps;
     steps = 6;
     tuple<int, int> doneCorrect = make_tuple(-1, 0);
-
-    int vergAngles[10] = {44, 32, 41, 40, 37, 36, 33, 35, 43, 42};
-
-    for (int i=0; i < 10; i++ ) {
+    //Iterate through all values of vergence
+    for (int i=0; i <= 20; i++ ) {
         int cntSamples = 0;
-        setVergenceAngle(vergAngles[i]);
-        while (cntSamples < 150) {
-
+        //Set vergence
+        setVergenceAngle(24+i);
+        //Collect 100 samples
+        while (cntSamples < 100) {
             direction = (get<0>(doneCorrect) == -1 || get<0>(doneCorrect) == 10 || get<0>(doneCorrect) == 9 || get<0>(doneCorrect) == 8) ? (rand() % 9) : get<0>(doneCorrect);
             doneCorrect = randomHeadMotions(direction, steps, minAngle, maxAngle, maxError);
             cntSamples += get<1>(doneCorrect);
@@ -343,10 +347,6 @@ void My_ICub::test() {
     getInvKinHandAngles(vector1, a, b, c);
     printVector(vector1);
     printVector(a);
-
-
-
-
 };
 
 tuple<int, int> My_ICub::randomHeadMotions(int direction, int steps, double minAng, double maxAngle, double maxError) {
@@ -534,69 +534,71 @@ void My_ICub::takeAndSaveImages(string path) {
     };
 }
 
-void My_ICub::collectData(string pathname) {
+/*
+ * The main method for collecting data for 2-1 model
+ */
+void My_ICub::collectData2To1(string pathname) {
+    //Initialization of controllers!
     if (getDataFile(pathname + "dataset.txt") != 1) {
         printf("Cannot open dataset file %s!\n", (pathname + "dataset.txt").c_str());
         return;
     };
-
     getHeadController();
     getWorldRpcClient();
     Vector gazeFixation, worldGCoors, handAngles, xd, od;
     srand(time(NULL));
 
-    int vergence = 36;
-    int min = 3;
-    int max = 8;
-    int i = 820;
-    int j = 0;
-    int dir = 0;
+    int vergence = 17;
+    int totalCount = 0;
+    int totalCountVergence = 0;
     double xDiff, yDiff;
-    double directions[] = {0, 1, 0, -1, 1, 0, -1, 0, 1, 1, -1, -1, -1, 1, 1, -1};
-
+    int numberForVergerce = 15;
     setVergenceAngle(vergence);
 
+    // For each value from interval <17, 41> collect "numberForVergence" of points in the space
     while (vergence < 41) {
-        if (j > 10) {
-            j = 0;
+        if (totalCountVergence > numberForVergerce) {
+            totalCountVergence = 0;
             vergence ++;
             setVergenceAngle(vergence);
         }
-
-        if (i % 4 == 0) {
-            dir = randomIntValue(0, 7);
-        }
+        // Generating new random orientation of the robot's eyes
         xDiff = randomDoubleValue(-20, 10);
-        yDiff = randomDoubleValue(-28, 28);
-
+        yDiff = randomDoubleValue(-30, 30);
+        // Setting new orientation of the eyes
         setEyesPosition(xDiff, yDiff, false);
+        // Receiving the point where the gaze is focused on
         getCurrentFixPoint(gazeFixation);
+        // Receiving angles of hand's joints corresponding to the fixation point
         getInvKinHandAngles(gazeFixation, xd, od, handAngles);
         Vector error(3);
         for (int k=0; k<3; ++k) {
             error[k] = abs(gazeFixation[k] - xd[k]);
         }
-        bool result = checkErrorGazeHand(gazeFixation, xd, 3.0);  //TODO: test it
+        // Check if the difference between the hand point and fixation point is not over the limit!
+        bool success = checkErrorGazeHand(gazeFixation, xd, 3.0);
 
-        if (result) {
-            j ++;
+        if (success == true) {
+            totalCountVergence ++;
+            // Creating an object representing the position of the palm in the space
             MatrixOperations::rotoTransfRootWorld(gazeFixation, worldGCoors);
             runYarpCommand(WorldYaprRpc::deleteAllObjects());
             runYarpCommand(WorldYaprRpc::createBOX(worldGCoors));
             Vector angles, results, headAngles;
             getCurrentAyesAngles(angles);
-            disignChanges(angles, results);
-
-            for (int j=0; 4 > j; j++) {
-                double xEDiff = results[j*2]; double yEDiff = results[((j*2)+1)];
+            // Designing of four head motions
+            designChanges(angles, results);
+            // Take image for each head conf in results and save data
+            for (int r=0; 4 > r; r++) {
+                double xEDiff = results[r*2]; double yEDiff = results[((r*2)+1)];
                 setEyesPosition(xEDiff, yEDiff, false);
-                takeAndSaveImages(pathname + to_string(i) + "_");
+                takeAndSaveImages(pathname + to_string(totalCount) + "_");
                 Vector changedAngles(2);
                 getCurrentAyesAngles(changedAngles);
 
-                datafile << i << " " << vectorDataToString(changedAngles) << vectorDataToString(handAngles) << vectorDataToString(gazeFixation) << vectorDataToString(error) << endl;
+                datafile << totalCount << " " << vectorDataToString(changedAngles) << vectorDataToString(handAngles) << vectorDataToString(gazeFixation) << vectorDataToString(error) << endl;
                 datafile.flush();
-                i++;
+                totalCount++;
             }
         }
     }
@@ -666,7 +668,7 @@ void My_ICub::getCurrentAyesAngles(Vector &pOf) {
     pOf[0] = titl; pOf[1] = version; pOf[2] = vergence;
 }
 
-void My_ICub::disignChanges(Vector of, Vector &pOf) {
+void My_ICub::designChanges(Vector of, Vector &pOf) {
     /*
     * titl    - cca 10:-25
     * version - cca 30:-30
