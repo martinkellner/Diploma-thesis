@@ -305,7 +305,7 @@ void My_ICub::collectData1To1(string path) {
     };
 
     setRandomVergenceAngle();
-    srand(NULL);
+    srand(time(NULL));
 
     const double maxError = 0.03;
     double maxAngle = 15;
@@ -429,6 +429,7 @@ bool My_ICub::checkHeadAngles(Vector headAngles) {
 }
 
 void My_ICub::setRandomVergenceAngle() {
+    getHeadController();
     // random angle from 24 to 44
     int randAng = (rand() % 21) + 24;
     head_controller->positionMove(5, randAng);
@@ -573,7 +574,7 @@ void My_ICub::collectData2To1(string pathname) {
         getInvKinHandAngles(gazeFixation, xd, od, handAngles);
         Vector error(3);
         for (int k=0; k<3; ++k) {
-            error[k] = abs(gazeFixation[k] - xd[k]);
+            error[k] = gazeFixation[k] - xd[k];
         }
         // Check if the difference between the hand point and fixation point is not over the limit!
         bool success = checkErrorGazeHand(gazeFixation, xd, 3.0);
@@ -731,6 +732,29 @@ Vector My_ICub::getFixPointFromHeadConf(Vector headGAngles, bool takeImages, str
     return fixPoint;
 }
 
+void My_ICub::explorePreffDir(Vector eyes, Vector fixp, string pathtosave) {
+
+
+    Vector worldCoods;
+    MatrixOperations::rotoTransfRootWorld(fixp, worldCoods);
+    printVector(worldCoods);
+    runYarpCommand(WorldYaprRpc::createBOX(worldCoods));
+    getHeadController();
+    int jnts; head_controller->getAxes(&jnts);
+    Vector headAngles(jnts); head_controller->getTargetPositions(headAngles.data());
+    headAngles.data()[3] = eyes[0];
+    headAngles.data()[4] = eyes[1];
+    headAngles.data()[5] = eyes[2];
+    head_controller->positionMove(headAngles.data());
+    bool done = false;
+    while (!done) {
+        head_controller->checkMotionDone(&done);
+        usleep(4);
+    }
+    takeAndSaveImages(pathtosave);
+    runYarpCommand(WorldYaprRpc::deleteAllObjects());
+}
+
 Vector My_ICub::getBPointFromHandConf(Vector handGAngles, bool createBox) {
     getArmController(RIGHT);
     Vector crrhand = getCrrHandAngles();
@@ -766,6 +790,7 @@ Vector My_ICub::getBPointFromHandConf(Vector handGAngles, bool createBox) {
 }
 
 Vector My_ICub::getCrrHandAngles() {
+    getArmController(RIGHT);
     int jnts = getRightArmJoints();
     getArmController(RIGHT);
     double *angs = new double[jnts];

@@ -29,12 +29,11 @@ class My_ICub {
     public:
         My_ICub(string robot_name="/icubSim", string own_port_name="/mysim");
         ~My_ICub();
-
         string getFullPortName(string port, bool own);
         enum Way {HAND_WATCHING, LOOK};
         enum Hand {RIGHT, LEFT};
+        void setArmJoints(Hand hand, Vector joints);
         //void collectingData(string path, int number, Way way);
-
         int getRightArmJoints();
         void closeDataFile();
         //void prepareDatasetFile(string path, double const angle);
@@ -44,8 +43,19 @@ class My_ICub {
         void collectData2To1(string pathname);
         Vector getFixPointFromHeadConf(Vector headGAngles, bool takeImages, string savepath);
         Vector getBPointFromHandConf(Vector handGAngles, bool createBox);
-    string vectorDataToString(Vector vector);
-    void printVector(Vector vec);
+        void setRandomVergenceAngle();
+        string vectorDataToString(Vector vector);
+        void printVector(Vector vec);
+        void explorePreffDir(Vector eyes, Vector fixp, string pathtosave);
+        double randomDoubleValue(double min, double max);
+        void getCurrentFixPoint(Vector &vector);
+        void getHeadCurrentVector(Vector &headAngles);
+        void setHeadAnglesAndMove(Vector pose);
+        void getRightPalmWorldPosition(Vector &vector);
+        void getArmJoints(Vector &armJoints);
+        void getInvKinHandAngles(Vector of, Vector &vectorOf, Vector &od, Vector &angles);
+        void takeImagesAndSave();
+        Vector getCrrHandAngles();
 
 protected:
         string
@@ -67,7 +77,7 @@ protected:
 
         ofstream datafile;
         int getDataFile(string path);
-        double randomDoubleValue(double min, double max);
+
         int randomIntValue(int min, int max);
 
         ImageOf<PixelRgb> *getRobotRightEyeImage();
@@ -101,40 +111,26 @@ protected:
 
         void getRobotGazeInteface();
         void getWorldRpcClient();
-        void getRightPalmWorldPosition(Vector &vector);
+
         void setRightArmVector();
         void setEyesPosition(double titl, double version, bool adding);
 
         Vector right_arm_vector;
         Vector head_limit_vector;
-        void setHeadAnglesAndMove(Vector pose);
-        void getCurrentFixPoint(Vector &vector);
+
+
         tuple<int, int> randomHeadMotions(int direction, int steps, double minAng, double maxAngle, double maxError);
-        void getHeadCurrentVector(Vector &headAngles);
+
         void invKinArmMovement(Hand hand, Vector pose);
         void armMovement(Vector diff, bool wait);
-
-    bool checkHeadAngles(Vector headAngles);
-
+        bool checkHeadAngles(Vector headAngles);
         int checkError(Vector error, const double maxErr);
-        void setRandomVergenceAngle();
-        void getArmJoints(Vector &armJoints);
-        void setArmJoints(Hand hand, Vector joints);
         void setVergenceAngle(int value);
         void takeAndSaveImages(string path);
-        Vector getCrrHandAngles();
-
-    bool checkErrorGazeHand(Vector gaze, Vector hand, double limit);
-
-    void takeImagesAndSave();
-
-    Bottle runYarpCommand(Bottle bottle);
-
-    void getInvKinHandAngles(Vector of, Vector &vectorOf, Vector &od, Vector &angles);
-
-    void getCurrentAyesAngles(Vector &pOf);
-
-    void designChanges(Vector of, Vector &pOf);
+        bool checkErrorGazeHand(Vector gaze, Vector hand, double limit);
+        Bottle runYarpCommand(Bottle bottle);
+        void getCurrentAyesAngles(Vector &pOf);
+        void designChanges(Vector of, Vector &pOf);
 };
 
 #endif
