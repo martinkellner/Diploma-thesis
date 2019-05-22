@@ -107,6 +107,27 @@ def extractFeatures(path):
     #cv2.circle(img, (cX, cY), 5, (255, 255, 255), -1)
     return cX, cY, size
 
+def image():
+    img = cv2.imread("/home/martin/data/v2/140_l_img.ppm")
+    img2 = cv2.imread("/home/martin/data/v2/filtered/140_l_img_blc.ppm")
+
+    x,y,s = extractFeatures("/home/martin/data/v2/filtered/140_l_img_blc.ppm")
+    print(x, y ,s)
+
+    fig, axes = plt.subplots(1, 3)
+    axes[0].imshow(img[:,:,::-1])
+    axes[1].imshow(img2[:,:,::-1])
+
+    axes[2].imshow(img2[:, :, ::-1])
+    axes[2].scatter(x, y, marker='o', color='red', s=5 )
+
+    axes[0].axis("off")
+    axes[1].axis("off")
+
+    plt.show()
+    plt.savefig("/home/martin/data.png")
+
+
 def addFeaturesToFilteredDataset(path):
     skipped = 0
     path = path + '/' if path[-1] is not '/' else path
@@ -181,3 +202,4 @@ if __name__ == '__main__':
     #### DEPRECATED ### selectSpecificSamples() #-> addind data from old dataset to the new dataset
     #printFixPoints("/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/datapreparation/data/retinal_image/dataset_flt.csv")
     pass
+    image()

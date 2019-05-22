@@ -1,6 +1,7 @@
 #include <string>
 #include "iostream"
 #include <fstream>
+#include <math.h>
 using namespace std;
 
 #include <yarp/os/Network.h>
@@ -20,24 +21,159 @@ using namespace yarp::dev;
 #include <zconf.h>
 #include "yarp_world_rpc.h"
 
+float euclideanDistance(Vector pose1, Vector pose2) {
+    return sqrt(pow(pose1[0] - pose2[0], 2) + pow(pose1[1] - pose2[1], 2) + pow(pose1[2] - pose2[2], 2));
+}
+
+void EyePalmCoordination() {
+    Network yarp;
+    My_ICub *icub = new My_ICub();
+    string choise = "";
+    std::cout << "\n###################################\n[1] Eye->Arm Coordination. \n[2] Arm->Eye Coordination. \n###################################" << std::endl;
+    std::cout << "Select your choise: ";
+    getline(cin, choise);
+    string cmd = "python3 /home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/ModelTest.py 2";
+    int vergence = 22;
+    Vector fixPoint; Vector worldGCoors; Vector desChanges; Vector eyePose(2);
+    string path = "/home/martin/School/Diploma-thesis/code/";
+    string resultString = "";
+    double xDiffs[3] = {-10.430184, 0.97521, -18.0954};
+    double yDiffs[3] = {25.31177, -0.9428, -27.790};
+    double vergences[3] = {27, 30, 36};
+    Vector handVector = icub->getCrrHandAngles();
+    Vector orHandVector = icub->getCrrHandAngles();
+    Vector palmWorld; Vector palmRoot;
+    icub->setArmJoints(icub->RIGHT, orHandVector);
+    float arrayFxp[9] = {-0.206299, -0.00997814, 0.267164, -0.183061, 0.0587184, 0.295898, -0.19319, -0.0707147, 0.306615};
+    srand(time(NULL));
+    if (choise == "1") {
+        for (int i=0;i < 3; i++) {
+            ifstream file(path + "channel.txt");
+            double xDiff = xDiffs[i];//icub->randomDoubleValue(-20, 10);
+            double yDiff = yDiffs[i];//icub->randomDoubleValue(-30, 30);
+            cout << xDiff << " " << yDiff << endl;
+            icub->setEyesPosition(xDiff, yDiff, false);
+            eyePose[0] = xDiff; eyePose[1] = yDiff;
+            icub->setVergenceAngle(vergences[i]);
+
+            icub->getCurrentFixPoint(fixPoint);
+            MatrixOperations::rotoTransfRootWorld(fixPoint, worldGCoors);
+            icub->runYarpCommand(WorldYaprRpc::createBOX(worldGCoors));
+            icub->designChanges(eyePose, desChanges);
+            int chidx = static_cast<int>(icub->randomDoubleValue(0, 3));
+            double chXdiff = desChanges[chidx*2]; double chYdiff = desChanges[(chidx*2)+1];
+            int diff = 7;
+            if (abs(chXdiff-xDiff) > diff) {
+                if (chXdiff > xDiff) {
+                    chXdiff = xDiff + diff;
+                } else {
+                    chXdiff = chXdiff + diff;
+                }
+            }
+            if (abs(chYdiff-yDiff) > diff) {
+                if (chYdiff > yDiff) {
+                    chYdiff = yDiff + diff;
+                } else {
+                    chYdiff = chYdiff + diff;
+                }
+            }
+
+            icub->setEyesPosition(chXdiff, chYdiff, false);
+            icub->takeAndSaveImages(path);
+            sleep(4);
+            icub->runYarpCommand(WorldYaprRpc::deleteAllObjects());
+            string cmdE = cmd + " " + to_string(xDiff) + " " + to_string(yDiff) + " " + to_string(vergence);
+            int wait = std::system(cmdE.c_str());
+            sleep(3);
+            string line;
+            getline(file, line);
+            std::stringstream lineS(line);
+
+            for (int j = 0; j < 7; j++) {
+                if (lineS.peek() == ' ') {
+                    lineS.ignore();
+                }
+                float value;
+                lineS >> value;
+                handVector[j] = value;
+            }
+            file.close();
+            lineS.clear();
+            icub->setArmJoints(icub->RIGHT, handVector);
+
+            icub->getRightPalmWorldPosition(palmWorld);
+            icub->runYarpCommand(WorldYaprRpc::createBOX(worldGCoors));
+            sleep(3);
+
+            MatrixOperations::rotoTransfWorldRoot(palmWorld, palmRoot);
+            icub->printVector(palmRoot);
+
+            float dist = euclideanDistance(fixPoint, palmRoot);
+            resultString += to_string(i) + ".: " + to_string(dist) + "\n";
+            icub->runYarpCommand(WorldYaprRpc::deleteAllObjects());
+            icub->setArmJoints(icub->RIGHT, orHandVector);
+        }
+        cout << "Result: \n####################\n" << resultString << endl;
+
+    } else if (choise == "2") {
+        Vector objPoint(3);
+        Vector handJoint, xd, od, wordlCoords, eyeVector(3);
+        for (int i=0; i<3; i++) {
+            ifstream file(path + "channel.txt");
+            objPoint[0] = arrayFxp[i * 3];
+            objPoint[1] = arrayFxp[(i * 3) + 1];
+            objPoint[2] = arrayFxp[(i * 3) + 2];
+            cout << "Checkpoint1" << endl;
+            icub->getInvKinHandAngles(objPoint, xd, od, handJoint);
+            icub->getArmJoints(handJoint);
+            cout << "Checkpoint2" << endl;
+            MatrixOperations::rotoTransfRootWorld(objPoint, wordlCoords);
+            icub->runYarpCommand(WorldYaprRpc::createBOX(wordlCoords));
+            string cmdE = cmd + " " + to_string(handJoint[0]) + " " + to_string(handJoint[1]) + " " +
+                          to_string(handJoint[2]) + " " + to_string(handJoint[3]) + " " + to_string(handJoint[4]) +
+                          " " + to_string(handJoint[5]) + " " + to_string(handJoint[6]);
+            int wait = std::system(cmdE.c_str());
+            sleep(3);
+            string line;
+            getline(file, line);
+            std::stringstream lineS(line);
+
+            for (int j = 0; j < 3; j++) {
+                if (lineS.peek() == ' ') {
+                    lineS.ignore();
+                }
+                float value;
+                lineS >> value;
+                eyeVector[j] = value;
+            }
+            file.close();
+            lineS.clear();
+            icub->setEyesPosition(eyeVector[0], eyeVector[1], false);
+            icub->setVergenceAngle(static_cast<int>(eyeVector[2]));
+            sleep(3);
+            icub->runYarpCommand(WorldYaprRpc::deleteAllObjects());
+        }
+    }
+}
 
 void HeadPalmCoordination() {
     Network yarp;
     My_ICub *icub = new My_ICub();
-    srand(time(NULL));
     Vector headJoints; Vector fixPoint(3);
     string cmd = "python3 /home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/ModelTest.py 1";
-    Vector handJoints(7); Vector xd; Vector od;
+    Vector handJoints; Vector xd; Vector od;
     Vector handOrVector = icub->getCrrHandAngles();
-
+    handJoints = handOrVector;
+    Vector palmWorld; Vector palmRoot;
 
     string choise = "";
     std::cout << "\n###################################\n[1] Head->Arm Coordination. \n[2] Arm->Head Coordination. \n###################################" << std::endl;
     std::cout << "Select your choise: ";
     getline(cin, choise);
+    string resultString = "";
+    icub->printVector(handOrVector);
 
     float arrayFxp[15] = {-0.10, 0.1, 0.35, -0.2, 0.12, 0.23, -0.17, -0.03, 0.35, -0.22, -0.05, 0.23, -0.30, 0.0, 0.35};
-
 
     if (choise == "1") {
         for (int i = 0; i < 5; ++i) {
@@ -68,13 +204,23 @@ void HeadPalmCoordination() {
             file.close();
             lineS.clear();
             icub->setArmJoints(icub->RIGHT, handJoints);
+
+            icub->getRightPalmWorldPosition(palmWorld);
+            MatrixOperations::rotoTransfWorldRoot(palmWorld, palmRoot);
+            float dist = euclideanDistance(fixPoint, palmRoot);
+            resultString += to_string(i) + ".: " + to_string(dist) + "\n";
+
         }
+
+        cout <<  "Results: \n#####################\n" << resultString << endl;
+        icub->setArmJoints(icub->RIGHT, handOrVector);
     } else if (choise == "2") {
-        for (int i = 0; i<5; i++) {
+        icub->setArmJoints(icub->RIGHT, handOrVector);
+        for (int i = 0; i < 5; i++) {
             ifstream file("/home/martin/School/Diploma-thesis/code/channel.txt");
-            fixPoint[0] = arrayFxp[(3*i)];
-            fixPoint[1] = arrayFxp[(3*i)+1];
-            fixPoint[2] = arrayFxp[(3*i)+2];
+            fixPoint[0] = arrayFxp[(3 * i)];
+            fixPoint[1] = arrayFxp[(3 * i) + 1];
+            fixPoint[2] = arrayFxp[(3 * i) + 2];
 
             icub->getInvKinHandAngles(fixPoint, xd, od, handJoints);
             icub->getArmJoints(handJoints);
@@ -111,8 +257,17 @@ void HeadPalmCoordination() {
             lineS.clear();
             icub->setHeadAnglesAndMove(headJoints);
             usleep(3);
+            icub->getCurrentFixPoint(fixPoint);
+            icub->getRightPalmWorldPosition(palmWorld);
+            MatrixOperations::rotoTransfWorldRoot(palmWorld, palmRoot);
+            float dist = euclideanDistance(fixPoint, palmRoot);
+            resultString += to_string(i) + ".: " + to_string(dist) + "\n";
             icub->setArmJoints(icub->RIGHT, handOrVector);
         }
+
+
+        cout <<  "Results: \n#####################\n" << resultString << endl;
+
     } else {
         std::cout << "Wrong input. Bey!" << endl;
     }
@@ -299,7 +454,7 @@ int main(int argc, char* argv[]) {
     Network yarp;
     My_ICub *icub = new My_ICub();
 
-    std::cout << "\n###################################\n[1] Data collecting script for 1-1.\n[2] Data collecting script for 2-1.\n[3] Demonstrating the functionality of the first model.\n###################################" << std::endl;
+    std::cout << "\n###################################\n[1] Data collecting script for 1-1.\n[2] Data collecting script for 2-1.\n[3] Demonstrating the functionality of the first model.\n[4] Demonstrating the functionality of the second model.\n###################################" << std::endl;
     std::cout << "(Warning: If want to run some script, make sure yourself that Yarpserver, iCub_SIM, and other required tools are running!)" << std::endl;
     std::cout << "Select your choise: ";
     string choise = "";
@@ -319,6 +474,10 @@ int main(int argc, char* argv[]) {
         //retinalModelValidData2();
         //retinalModelValidData3();
         HeadPalmCoordination();
+        return EXIT_SUCCESS;
+    } else if (choise == "4") {
+        EyePalmCoordination();
+        return EXIT_SUCCESS;
     } else {
         delete icub;
         return EXIT_FAILURE;

@@ -675,12 +675,6 @@ void My_ICub::designChanges(Vector of, Vector &pOf) {
     * version - cca 30:-30
     */
 
-    double upXGap, downXGap, leftYGap, rightYGap;
-    upXGap = 10 - of[0];
-    downXGap = of[0] + 25;
-    rightYGap = 30 - of[1];
-    leftYGap = of[1] + 30;
-
     pOf.resize(8);
     pOf[0] = randomDoubleValue(of[0], 10);
     pOf[1] = randomDoubleValue(of[1], 30);
@@ -728,13 +722,10 @@ Vector My_ICub::getFixPointFromHeadConf(Vector headGAngles, bool takeImages, str
     if (takeImages == true) {
         takeAndSaveImages(savepath);
     }
-
     return fixPoint;
 }
 
 void My_ICub::explorePreffDir(Vector eyes, Vector fixp, string pathtosave) {
-
-
     Vector worldCoods;
     MatrixOperations::rotoTransfRootWorld(fixp, worldCoods);
     printVector(worldCoods);
