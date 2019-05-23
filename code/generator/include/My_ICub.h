@@ -7,31 +7,31 @@
 #include <vector>
 #include <tuple>
 using namespace std;
-
 #include <yarp/dev/PolyDriver.h>
 #include <yarp/dev/GazeControl.h>
 #include <yarp/dev/CartesianControl.h>
 #include <yarp/dev/IPositionControl.h>
 #include <yarp/dev/IControlLimits.h>
 using namespace yarp::dev;
-
 #include <yarp/sig/Image.h>
 #include <yarp/sig/Vector.h>
 using namespace yarp::sig;
-
 #include <yarp/os/BufferedPort.h>
 #include <yarp/os/RpcClient.h>
-
 using namespace yarp::os;
 
 class My_ICub {
     
     public:
+        Bottle runYarpCommand(Bottle bottle);
+        void designChanges(Vector of, Vector &pOf);
         My_ICub(string robot_name="/icubSim", string own_port_name="/mysim");
         ~My_ICub();
         string getFullPortName(string port, bool own);
+        void setVergenceAngle(int value);
         enum Way {HAND_WATCHING, LOOK};
         enum Hand {RIGHT, LEFT};
+        void takeAndSaveImages(string path);
         void setArmJoints(Hand hand, Vector joints);
         //void collectingData(string path, int number, Way way);
         int getRightArmJoints();
@@ -56,7 +56,7 @@ class My_ICub {
         void getInvKinHandAngles(Vector of, Vector &vectorOf, Vector &od, Vector &angles);
         void takeImagesAndSave();
         Vector getCrrHandAngles();
-
+        void setEyesPosition(double titl, double version, bool adding);
 protected:
         string
             robot_name,
@@ -104,33 +104,21 @@ protected:
 
         BufferedPort<ImageOf<PixelRgb>> *getRobotRightEyeDriver();
         BufferedPort<ImageOf<PixelRgb>> *getRobotLeftEyeDriver();
-
         PolyDriver *gaze_driver;
         IGazeControl *iGaze;
         ICartesianControl *iCarCtrl;
-
         void getRobotGazeInteface();
         void getWorldRpcClient();
-
         void setRightArmVector();
-        void setEyesPosition(double titl, double version, bool adding);
-
         Vector right_arm_vector;
         Vector head_limit_vector;
-
-
         tuple<int, int> randomHeadMotions(int direction, int steps, double minAng, double maxAngle, double maxError);
-
         void invKinArmMovement(Hand hand, Vector pose);
         void armMovement(Vector diff, bool wait);
         bool checkHeadAngles(Vector headAngles);
         int checkError(Vector error, const double maxErr);
-        void setVergenceAngle(int value);
-        void takeAndSaveImages(string path);
         bool checkErrorGazeHand(Vector gaze, Vector hand, double limit);
-        Bottle runYarpCommand(Bottle bottle);
         void getCurrentAyesAngles(Vector &pOf);
-        void designChanges(Vector of, Vector &pOf);
 };
 
 #endif
