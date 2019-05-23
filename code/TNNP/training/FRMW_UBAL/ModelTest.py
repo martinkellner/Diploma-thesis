@@ -1,5 +1,5 @@
-from training.FRMW_UBAL.UbalNet import loadModel
-from training.FRMW_UBAL.featureExtractor import extractFeatures
+from UbalNet import loadModel
+from featureExtractor import extractFeatures
 import sys
 from sklearn.externals import joblib
 import numpy as np
