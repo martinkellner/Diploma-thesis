@@ -1,0 +1,9 @@
+/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/exp/little_2019-04-25_09:53:27/ 0.1 400 24 [0, 0.30000000000000004, 0.7] [0.7, 0.30000000000000004, 0] [0, 0, 0, 0.9] [4, 5, 4, 10, 8, 10, 8] [7, 8, 7, 15, 13, 15, 13] [4, 2, 5, 5, 10, 3, 4] [7, 1.5, 9, 9, 14, 9, 9] little1 [array([2.08260669]), array([0.16865439]), array([3.32923828]), array([2.63552302]), array([21.18662231]), array([3.36420773]), array([2.3393773])]
+
+
+Arg distance error against fix point - forward: 0.0431 m.
+The number of test under: 0.02155 - 3
+The number of test under: 0.0431 - 118
+The number of test under: 0.06465 - 52
+The number of test over 0.06465 - 14
+

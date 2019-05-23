@@ -1,0 +1,25 @@
+/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/models/ret2/0.12_15_200_0.8_0.9_2019-03-03_21:52:33
+
+Last save: Epoch: 72	TRAINING:	Forward MSE:0.10598046759481773	Backward MSE:0.3590119238973634	TESTING:	Forward MSE:0.09290013579253466	Backward MSE:0.4075468639759405
+
+### Avarage error for each features:
+I1 - abs err: 9.398252901036848
+I2 - abs err: 14.101606660414774
+I3 - abs err: 1.7433954877667
+I4 - abs err: 65.08114677011424
+I5 - abs err: 35.29105795781269
+I6 - abs err: 84.71356888539493
+I7 - abs err: 64.60146985189624
+I8 - abs err: 36.79989267977536
+I9 - abs err: 96.13940132180325
+O1 - abs err: 1.96700579349754
+O2 - abs err: 0.11318843342435315
+O3 - abs err: 2.5852132362986926
+O4 - abs err: 2.571538880190831
+O5 - abs err: 19.74099048732274
+O6 - abs err: 2.1297253295398857
+O7 - abs err: 2.210962391536501
+
+Arg distance error against fix point - backward: 0.045 m.
+Arg distance error against fix point - forward: 0.0241 m.
+Arg distance error against palm points - forward: 0.0242 m
