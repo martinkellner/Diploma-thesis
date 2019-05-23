@@ -5,10 +5,10 @@ from sklearn.externals import joblib
 import numpy as np
 
 if __name__ == '__main__':
-    model1 = "/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/results/1-1v2/"
-    model1Scaler = "/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/results/1-1v2/scaler.pkl"
+    model1 = "/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/results/results/1-1v2/"
+    model1Scaler = "/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/results/results/1-1v2/scaler.pkl"
     saveRes = "/home/martin/School/Diploma-thesis/code/channel.txt"
-    model2A = '/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/results/2-1v1/'
+    model2A = '/home/martin/School/Diploma-thesis/code/TNNP/training/FRMW_UBAL/results/results/2-1v1/'
     model2B = None
     inputarr = [float(sys.argv[i]) for i in range(2, len(sys.argv))]
     result = None

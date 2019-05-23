@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 from mpl_toolkits import mplot3d
 
 
-from training.FRMW_UBAL import UbalNet
+from UbalNet import *
 
 #def readFile(path):
 #    return pd.read_csv(path, sep=',')
