@@ -1,12 +1,12 @@
-from training.FRMW_UBAL.datapreparation.featureExtractor import extractFeatures
-from training.FRMW_UBAL.UbalNet import loadModel
+from featureExtractor import extractFeatures
+from UbalNet import loadModel
 from sklearn.externals import joblib
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import rcParams
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-from training.FRMW_UBAL.DataPreparation import inputCoder
+from DataPreparation import inputCoder
 
 def getRetinalReducedDataToTest(path):
     results = []

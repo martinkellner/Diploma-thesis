@@ -5,9 +5,9 @@ from sklearn.externals import joblib
 import numpy as np
 import cv2
 #from sklearn.preprocessing import scale
-from training.FRMW_UBAL.populationCoder import *
-from training.FRMW_UBAL.UbalNet import *
-from training.FRMW_UBAL.populationCoder import *
+from populationCoder import *
+from UbalNet import *
+from populationCoder import *
 
 def scaleDataVector(X):
     scaler = StandardScaler().fit(X)

@@ -1,4 +1,4 @@
-from training.FRMW_UBAL.DataPreparation import *
+from DataPreparation import *
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -8,7 +8,7 @@ import datetime
 from sklearn.externals import joblib
 from mpl_toolkits import mplot3d
 import math
-from training.FRMW_UBAL.populationCoder import *
+from populationCoder import *
 
 class UbalNet:
 

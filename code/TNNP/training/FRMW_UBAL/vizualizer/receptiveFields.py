@@ -1,4 +1,4 @@
-from training.FRMW_UBAL.UbalNet import loadModel
+from UbalNet import loadModel
 from sklearn.externals import joblib
 import seaborn as sns
 from matplotlib import pyplot as plt
