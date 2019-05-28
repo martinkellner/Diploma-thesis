@@ -1,1 +1,1 @@
-<embed type="video" src="https://github.com/martinkellner/master-thesis/blob/master/videos/model1-hand-head.ogv">
+![Model 1: Hand-Head Coordination](http://www.st.fmph.uniba.sk/~kellner7/videos/model1-hand-head.ogv)
