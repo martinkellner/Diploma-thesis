@@ -257,7 +257,7 @@ class UbalNet:
             plt.savefig(self.foldername + "figure.png")
 
     def mse(self, target, output):
-        return np.sum((target - output) ** 2)
+        return np.sum((target - output) ** 2)   
 
     def mao(self, targer, output):
         return np.sum(np.abs(targer - output))
