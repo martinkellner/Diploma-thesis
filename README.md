@@ -97,5 +97,5 @@ on Performance Metrics for Intelligent Systems, PerMIS â€™08, New York, pp. 57â€
 ## Progress
 The first presentation: <a href="http://www.st.fmph.uniba.sk/~kellner7/prez/ds.pdf">pdf</a> <br>
 The second presentation: <a href="https://github.com/martinkellner/master-thesis/blob/master/notes/progress/README.md">md</a> <br>
-Results of the thesis (video and pdf resume (SK)): <a href="http://www.st.fmph.uniba.sk/~kellner7/def">link</a>
+Results of the thesis (video and the summarization of results [only SK]): <a href="http://www.st.fmph.uniba.sk/~kellner7/def">link</a>
 
